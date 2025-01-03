@@ -1,0 +1,10 @@
+[user]
+	name = Yuzuki Tsuji
+	email = yuzu777yuzu0@gmail.com
+[difftool "sourcetree"]
+	cmd = "'' "
+[mergetool "sourcetree"]
+	cmd = "'' "
+	trustExitCode = true
+[init]
+	defaultBranch = main
