@@ -8,3 +8,7 @@
 	trustExitCode = true
 [init]
 	defaultBranch = main
+[credential "https://git.overleaf.com"]
+	provider = generic
+[core]
+	editor = nvim
