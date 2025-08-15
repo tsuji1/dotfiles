@@ -68,3 +68,5 @@
 
 !/.bashrc
 !/.git-completion.bash
+
+./config/go
