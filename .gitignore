@@ -70,3 +70,4 @@
 !/.git-completion.bash
 
 .config/go
+.config/github-copilot
