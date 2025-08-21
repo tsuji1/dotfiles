@@ -1,0 +1,8 @@
+return {
+	"uga-rosa/translate.nvim",
+	opts = {}, -- 既定のままでOK（必要なら DeepL のキー等を設定）
+	keys = {
+		{ "gT", "<Cmd>Translate JA<CR>", mode = { "n", "x" }, desc = "→日本語翻訳" },
+		{ "gE", "<Cmd>Translate EN<CR>", mode = { "n", "x" }, desc = "→英語翻訳" },
+	},
+}
