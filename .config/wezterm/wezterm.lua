@@ -91,13 +91,18 @@ local config = wezterm.config_builder()
 local config = {
 	
   -- KeyBindings
-  leader = { key = 'o', mods = 'CTRL', timeout_milliseconds = 2000 },
+  leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 2000 },
 
   -- Split pane
   keys = {
     { key = '|', mods = 'LEADER|SHIFT', action = wezterm.action.SplitHorizontal },
     { key = '-', mods = 'LEADER', action = wezterm.action.SplitVertical },
-    -- Enable copy mode
+    -- Enable copy mod    
+    {
+      key = 'w',
+      mods = 'LEADER',
+      action = wezterm.action.CloseCurrentPane { confirm = true },
+    },
     { key = 'v', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
     -- Move pane
     { key = 'h', mods = 'LEADER', action = wezterm.action.ActivatePaneDirection 'Left' },
@@ -144,7 +149,13 @@ wezterm.on('SpawnNewTabOnPwsh', function(window, pane)
 		args = {"pwsh.exe"}
 	}}, pane)
 end)
-config.default_prog ={ "pwsh.exe" }
+
+local is_windows = wezterm.target_triple:find("windows")
+if is_windows then
+  config.default_prog ={ "pwsh.exe" }
+else
+  config.default_prog = { "/bin/bash", "-l" }
+end
 
 
 config.font_size = 12.0
@@ -154,6 +165,8 @@ config.font = wezterm.font("JetBrains Mono")
 config.macos_window_background_blur = 20
 config.scrollback_lines = 10000
 enable_scrollbar = true
+
+config.enable_kitty_graphics = true
 
  config.hide_tab_bar_if_only_one_tab = true
  config.window_frame = {
