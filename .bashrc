@@ -130,3 +130,4 @@ export NVM_DIR="$HOME/.nvm"
 
 . /usr/share/autojump/autojump.bash
 
+export PATH=$PATH:/Applications/WezTerm.app/Contents/MacOS
