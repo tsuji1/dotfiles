@@ -71,3 +71,6 @@
 
 .config/go
 .config/github-copilot
+raycast
+lazy-lock.json
+
