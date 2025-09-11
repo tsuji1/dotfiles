@@ -1,0 +1,12 @@
+{
+  "zzhello": {
+    "scope": "python",
+    "prefix": "zzhello",
+    "body": ["print(\"Hello, ${1:world}!\")"]
+  },
+  "pwnbase": {
+    "scope": "python",
+    "prefix": "pwnbase",
+    "body": ["#!/usr/bin/env python3"]
+  }
+}

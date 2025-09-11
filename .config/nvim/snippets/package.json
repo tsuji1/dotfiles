@@ -1,0 +1,16 @@
+{
+  "categories": [
+    "Snippets"
+  ],
+  "name": "my-snippets",
+  "contributes": {
+    "snippets": [
+      {
+        "language": [
+          "python"
+        ],
+        "path": "python.json"
+      }
+    ]
+  }
+}

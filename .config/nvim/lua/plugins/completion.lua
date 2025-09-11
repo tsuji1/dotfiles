@@ -41,7 +41,10 @@ return {
 			local luasnip = require("luasnip")
 
 			-- friendly-snippets 読み込み
+
 			require("luasnip.loaders.from_vscode").lazy_load()
+			require("luasnip.loaders.from_vscode").lazy_load({ paths = "../../snippets" })
+			require("luasnip.loaders.from_vscode").lazy_load({ paths = "~/.config/nvim/snippets" })
 
 			-- Copilot を上位に並べたい場合の comparator（存在しない場合は無視）
 			local has_copilot_cmp, copilot_cmp = pcall(require, "copilot_cmp.comparators")
