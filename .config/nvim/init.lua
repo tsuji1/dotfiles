@@ -48,9 +48,21 @@ vim.keymap.set("n", "<C-Down>", "<cmd>resize -2<CR>")
 vim.keymap.set("n", "<C-Left>", "<cmd>vertical resize -4<CR>")
 vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +4<CR>")
 
+vim.keymap.set("n", "<F5>", function()
+	local file = vim.fn.expand("%")
+	local ft = vim.bo.filetype
+	if ft == "python" then
+		vim.cmd("!python3 " .. file)
+	elseif ft == "c" then
+		vim.cmd("!gcc " .. file .. " -o " .. vim.fn.expand("%:r") .. " && " .. vim.fn.expand("%:r"))
+	elseif ft == "cpp" then
+		vim.cmd("!g++ " .. file .. " -o " .. vim.fn.expand("%:r") .. " && " .. vim.fn.expand("%:r"))
+	end
+end)
+
 -- active/inactive window の背景を差別化
-vim.api.nvim_set_hl(0, "Normal", { bg = "#1e1e2e" }) -- 非アクティブ
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "#161622" }) -- アクティブ以外
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "#1e1e2e" }) -- 非アクティブ
+-- vim.api.nvim_set_hl(0, "NormalNC", { bg = "#161622" }) -- アクティブ以外
 
 vim.opt.laststatus = 2 -- 各分割にステータスライン
 
