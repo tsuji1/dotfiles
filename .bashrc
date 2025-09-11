@@ -121,7 +121,7 @@ export PATH=$PATH:/usr/local/go/bin
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
-source .git-completion.bash
+source ~/.git-completion.bash
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -131,3 +131,16 @@ export NVM_DIR="$HOME/.nvm"
 . /usr/share/autojump/autojump.bash
 
 export PATH=$PATH:/Applications/WezTerm.app/Contents/MacOS
+alias dokcer="docker"
+alias nivm="nvim"
+alias nimv="nvim"
+alias n="nvim"
+
+set -o vi
+
+# キーマップごとに PROMPT_COMMAND を切り替える
+bind -m vi-insert
+bind 'set show-mode-in-prompt on'
+bind 'set vi-ins-mode-string "\1\e[32m\2[I]\1\e[0m\2 "'
+bind 'set vi-cmd-mode-string "\1\e[31m\2[N]\1\e[0m\2 "'
+
