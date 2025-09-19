@@ -55,7 +55,7 @@ return {
 		priority = 1000,
 		opts = {
 			style = "storm", -- "storm"|"night"|"moon"|"day"
-			transparent = true, -- ← 透過
+			transparent = true, --
 			styles = { sidebars = "transparent", floats = "transparent" },
 		},
 		config = function(_, opts)
@@ -77,7 +77,7 @@ return {
 					"TelescopeNormal",
 					"TelescopeBorder",
 				}) do
-					vim.api.nvim_set_hl(0, grp, { bg = "none" })
+					vim.api.nvim_set_hl(0, grp, { bg = "NONE" })
 				end
 				vim.o.winblend = 10 -- 浮動ウィンドウのブレンド
 				vim.o.pumblend = 10 -- 補完メニューのブレンド
