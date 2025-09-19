@@ -73,4 +73,5 @@
 .config/github-copilot
 raycast
 lazy-lock.json
+.config/ffuf/history
 
