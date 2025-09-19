@@ -22,6 +22,16 @@ return {
 			require("mason-lspconfig").setup(opts)
 
 			local caps = require("cmp_nvim_lsp").default_capabilities()
+			-- mason / mason-lspconfig はいつも通りでOK
+			require("lspconfig").pylsp.setup({
+				settings = {
+					pylsp = {
+						plugins = {
+							pyflakes = { enabled = false }, -- ← これでOFF
+						},
+					},
+				},
+			})
 
 			-- すべての LSP に共通設定（0.11+）
 			vim.lsp.config("*", {
@@ -70,8 +80,6 @@ return {
 					"stylua",
 					"prettierd",
 					"shfmt",
-					"flake8",
-					"black",
 				},
 				run_on_start = true,
 				start_delay = 100,
