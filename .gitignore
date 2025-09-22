@@ -74,4 +74,4 @@
 raycast
 lazy-lock.json
 .config/ffuf/history
-
+.config/helm
