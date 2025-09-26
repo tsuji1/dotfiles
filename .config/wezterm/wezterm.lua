@@ -87,15 +87,15 @@ end
 
 local is_mac = (wezterm.target_triple or ""):match("darwin") or (wezterm.target_triple or ""):match("apple")
 wezterm.log_info("is_mac: " .. tostring(is_mac))
+local MOD = is_mac and "CMD" or "CTRL"
+local MOD_S = is_mac and "CMD|SHIFT" or "CTRL|SHIFT"
+
 local config = {
 
 	-- KeyBindings
 	--
 
-	MOD = is_mac and "CMD" or "CTRL",
-	MOD_S = is_mac and "CMD|SHIFT" or "CTRL|SHIFT",
-
-	leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 },
+	leader = { key = "a", mods = MOD, timeout_milliseconds = 2000 },
 
 	-- Split pane
 	keys = {
