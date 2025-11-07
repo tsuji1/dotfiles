@@ -1,50 +1,21 @@
 return {
-	-- Mason 本体
 	{
-		"williamboman/mason.nvim",
-		build = ":MasonUpdate",
-		opts = {
-			ui = { border = "rounded" },
-			PATH = "append",
-		},
-	},
-
-	-- mason-lspconfig v2（0.11+ の新流儀）
-	{
-		"williamboman/mason-lspconfig.nvim",
-		dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp" },
-		opts = {
-			-- 必要なサーバを好きに追加
-			ensure_installed = { "lua_ls", "yamlls", "jsonls", "bashls" },
-			automatic_enable = true, -- ← v2 の新設定（既定で true）
-		},
-		config = function(_, opts)
-			require("mason-lspconfig").setup(opts)
-
+		"neovim/nvim-lspconfig",
+		config = function()
 			local caps = require("cmp_nvim_lsp").default_capabilities()
-			-- mason / mason-lspconfig はいつも通りでOK
-			require("lspconfig").pylsp.setup({
-				settings = {
-					pylsp = {
-						plugins = {
-							pyflakes = { enabled = false }, -- ← これでOFF
-						},
-					},
-				},
-			})
 
-			-- すべての LSP に共通設定（0.11+）
+			-- 共通設定（全サーバ）
 			vim.lsp.config("*", {
 				capabilities = caps,
 				on_attach = function(_, bufnr)
-					local map = function(mode, lhs, rhs, desc)
-						vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, noremap = true, desc = desc })
+					local map = function(m, lhs, rhs, d)
+						vim.keymap.set(m, lhs, rhs, { buffer = bufnr, silent = true, noremap = true, desc = d })
 					end
-					map("n", "gd", vim.lsp.buf.definition, "LSP: goto definition")
-					map("n", "gD", vim.lsp.buf.declaration, "LSP: goto declaration")
+					map("n", "gd", vim.lsp.buf.definition, "LSP: definition")
+					map("n", "gD", vim.lsp.buf.declaration, "LSP: declaration")
 					map("n", "gr", vim.lsp.buf.references, "LSP: references")
 					map("n", "gi", vim.lsp.buf.implementation, "LSP: implementations")
-					map("n", "K", vim.lsp.buf.hover, "LSP: hover")
+					map("n", "gK", vim.lsp.buf.hover, "LSP: hover", { buffer = bufnr, silent = true })
 					map("n", "<leader>lr", vim.lsp.buf.rename, "LSP: rename")
 					map("n", "<leader>la", vim.lsp.buf.code_action, "LSP: code action")
 					map("n", "<leader>lf", function()
@@ -54,36 +25,69 @@ return {
 				flags = { debounce_text_changes = 150 },
 			})
 
-			-- サーバ個別の上書き
-			vim.lsp.config("lua_ls", {
+			-- ↓ここから「入っていれば使う」個別設定 -----------------------
+			local cmd = (function()
+				local p = vim.fn.exepath("pylsp")
+				return p ~= "" and { p } or { "pylsp" }
+			end)()
+
+			-- Python (pylsp) — Lintは不要ならプラグインを切る
+			-- if vim.fn.executable("pylsp") == 1 then
+			vim.lsp.config("pylsp", {
+				cmd = cmd,
 				settings = {
-					Lua = {
-						diagnostics = { globals = { "vim" } },
-						workspace = { checkThirdParty = false },
-						telemetry = { enable = false },
+					pylsp = {
+						plugins = {
+							pyflakes = { enabled = false }, -- Wを出す系をOFF
+							pycodestyle = { enabled = false },
+							mccabe = { enabled = false },
+						},
 					},
 				},
 			})
 
-			vim.lsp.config("yamlls", {
-				settings = { yaml = { keyOrdering = false } },
-			})
-		end,
-	}, -- 3) 開発ツールの自動インストール（任意）
-	{
-		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		dependencies = { "williamboman/mason.nvim" },
-		config = function()
-			require("mason-tool-installer").setup({
-				ensure_installed = {
-					-- フォーマッタ/リンタなど（必要に応じて）
-					"stylua",
-					"prettierd",
-					"shfmt",
-				},
-				run_on_start = true,
-				start_delay = 100,
-			})
+			-- end
+
+			-- Lua
+			if vim.fn.executable("lua-language-server") == 1 then
+				vim.lsp.config("lua_ls", {
+					settings = {
+						Lua = {
+							diagnostics = { globals = { "vim" } },
+							workspace = { checkThirdParty = false },
+							telemetry = { enable = false },
+						},
+					},
+				})
+			end
+
+			-- YAML
+			if vim.fn.executable("yaml-language-server") == 1 then
+				vim.lsp.config("yamlls", {
+					settings = { yaml = { keyOrdering = false } },
+				})
+			end
+
+			-- JSON（vscode-langservers-extracted）
+			if vim.fn.executable("vscode-json-language-server") == 1 then
+				vim.lsp.config("jsonls", {})
+			end
+
+			-- Bash
+			if vim.fn.executable("bash-language-server") == 1 then
+				vim.lsp.config("bashls", {})
+			end
+			-- C / C++ 用 (clangd)
+			if vim.fn.executable("clangd") == 1 then
+				vim.lsp.config("clangd", {
+					-- 必要ならここに設定を書く
+					cmd = { "clangd" },
+					filetypes = { "c", "C", "cpp", "objc", "objcpp" },
+				})
+				vim.lsp.enable("clangd")
+			end
 		end,
 	},
+
+	-- { "hrsh7th/nvim-cmp", dependencies = { "hrsh7th/cmp-nvim-lsp" } },
 }
