@@ -148,3 +148,4 @@ source <(kubectl completion bash)
 
 eval "$(starship init bash)"
 export KUBE_EDITOR="$(command -v nvim)"
+export PATH=$PATH:"$HOME/.local/bin"
