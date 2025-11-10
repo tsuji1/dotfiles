@@ -74,4 +74,10 @@
 raycast
 lazy-lock.json
 .config/ffuf/history
+.config/helm
+
+.config/copyq
+.config/karabiner/automatic_backups
+.config/wireshark/recent
+.config/wireshark/recent_common
 

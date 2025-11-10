@@ -144,3 +144,8 @@ bind 'set show-mode-in-prompt on'
 bind 'set vi-ins-mode-string "\1\e[32m\2[I]\1\e[0m\2 "'
 bind 'set vi-cmd-mode-string "\1\e[31m\2[N]\1\e[0m\2 "'
 
+source <(kubectl completion bash)
+
+eval "$(starship init bash)"
+export KUBE_EDITOR="$(command -v nvim)"
+export PATH=$PATH:"$HOME/.local/bin"
