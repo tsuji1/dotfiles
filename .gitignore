@@ -81,3 +81,6 @@ lazy-lock.json
 .config/wireshark/recent
 .config/wireshark/recent_common
 
+.config/systemd/user/timers.target.wants
+.config/Code/User
+.config/gopls/prompt
