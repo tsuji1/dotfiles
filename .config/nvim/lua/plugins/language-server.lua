@@ -30,6 +30,36 @@ return {
 				local p = vim.fn.exepath("pylsp")
 				return p ~= "" and { p } or { "pylsp" }
 			end)()
+      -- Go (gopls)
+
+      if vim.fn.executable("gopls") == 1 then
+        vim.lsp.config("gopls", {
+          cmd = { "gopls" },  -- Mason で入れていればそのまま
+          settings = {
+            gopls = {
+              -- よく使う推奨設定
+              staticcheck = true,         -- 静的解析を有効化
+              gofumpt = true,             -- gofumpt で整形
+              usePlaceholders = true,     -- 補完のプレースホルダ
+              hints = {                   -- inlay hints（必要なら）
+                assignVariableTypes = true,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = true,
+                constantValues = true,
+                parameterNames = true,
+                rangeVariableTypes = true,
+              },
+              analyses = {                -- 有効にする解析
+                unusedparams = true,
+                unusedwrite = true,
+                shadow = true,
+                nilness = true,
+                deprecation = true,
+              },
+            },
+          },
+        })
+      end
 
 			-- Python (pylsp) — Lintは不要ならプラグインを切る
 			-- if vim.fn.executable("pylsp") == 1 then
