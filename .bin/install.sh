@@ -47,6 +47,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+# 依存はあとで入れてもらう
+# go install golang.org/x/tools/gopls@latest
 link_to_homedir
 # git config --global include.path "~/.gitconfig_shared"
 command echo -e "\e[1;36m Install completed!!!! \e[m"
