@@ -104,6 +104,7 @@ local config = {
       action = wezterm.action.CloseCurrentPane { confirm = true },
     },
     { key = 'v', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
+    { key = 'v',     mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
     -- Move pane
     { key = 'h', mods = 'LEADER', action = wezterm.action.ActivatePaneDirection 'Left' },
     { key = 'j', mods = 'LEADER', action = wezterm.action.ActivatePaneDirection 'Down' },
