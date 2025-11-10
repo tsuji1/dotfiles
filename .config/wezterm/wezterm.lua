@@ -89,23 +89,24 @@ local is_mac = (wezterm.target_triple or ""):match("darwin") or (wezterm.target_
 wezterm.log_info("is_mac: " .. tostring(is_mac))
 local MOD = is_mac and "CMD" or "CTRL"
 local MOD_S = is_mac and "CMD|SHIFT" or "CTRL|SHIFT"
+local act = wezterm.action
 
 local primary_mod = is_mac and "CMD" or "CTRL"
 
 quick_select_patterns = {
-    -- URL / ドメイン
-    "[A-Za-z]+://[^\\s]+",
-    "[%w%.%-_]+%.[A-Za-z]{2,}",
-    -- IPv4 / CIDR / IPv6
-    "%d+%.%d+%.%d+%.%d+/%d+",
-    "%d+%.%d+%.%d+%.%d+",
-    "[%x:]+:%x+[%x:]*",
-    -- MAC アドレス
-    "%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",
-    -- AS番号 / チケット番号っぽいもの
-    "AS%d+",
-    "[A-Z]+-%d+",
-  },
+	-- URL / ドメイン
+	"[A-Za-z]+://[^\\s]+",
+	"[%w%.%-_]+%.[A-Za-z]{2,}",
+	-- IPv4 / CIDR / IPv6
+	"%d+%.%d+%.%d+%.%d+/%d+",
+	"%d+%.%d+%.%d+%.%d+",
+	"[%x:]+:%x+[%x:]*",
+	-- MAC アドレス
+	"%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",
+	-- AS番号 / チケット番号っぽいもの
+	"AS%d+",
+	"[A-Z]+-%d+",
+}
 
 local config = {
 
@@ -155,65 +156,65 @@ local config = {
 			mods = "CTRL|SHIFT",
 			action = wezterm.action_callback(open_in_vscode),
 		},
-		{ key = "L", mods = "CTRL|SHIFT", action = wezterm.action.ShowDebugOverlay },
-     ----------------------------------------------------------------
-    -- 1) Ctrl+Shift+Space（共通）: QuickSelect を開いて → 即コピー
-    ----------------------------------------------------------------
-    {
-      key = "Space",
-      mods = "CTRL|SHIFT",
-      action = act.QuickSelectArgs({
-        label = "Pick & Copy",
-        patterns = nil, -- ↑quick_select_patterns を使う
-        action = act.CopyTo("Clipboard"),
-      }),
-    },
-    -- （Macで Cmd+Shift+Space でも同じ動作にしたい場合）
-    {
-      key = "Space",
-      mods = "CMD|SHIFT",
-      action = act.QuickSelectArgs({
-        label = "Pick & Copy",
-        patterns = nil,
-        action = act.CopyTo("Clipboard"),
-      }),
-    },
+		{ key = "p", mods = "CTRL|SHIFT", action = wezterm.action.ShowDebugOverlay },
+		----------------------------------------------------------------
+		-- 1) Ctrl+Shift+Space（共通）: QuickSelect を開いて → 即コピー
+		----------------------------------------------------------------
+		{
+			key = "Space",
+			mods = "CTRL|SHIFT",
+			action = act.QuickSelectArgs({
+				label = "Pick & Copy",
+				patterns = nil, -- ↑quick_select_patterns を使う
+				action = act.CopyTo("Clipboard"),
+			}),
+		},
+		-- （Macで Cmd+Shift+Space でも同じ動作にしたい場合）
+		{
+			key = "Space",
+			mods = "CMD|SHIFT",
+			action = act.QuickSelectArgs({
+				label = "Pick & Copy",
+				patterns = nil,
+				action = act.CopyTo("Clipboard"),
+			}),
+		},
 
-    ----------------------------------------------------------------
-    -- 2) Ctrl+Shift+V: CopyMode の「ビジュアル選択」へ直行
-    --   ※Windows/Linux 既定の「ペースト」とバッティングします。
-    --     ここで上書きしたくない場合はキーを変えてください（例: Alt+V）。
-    ----------------------------------------------------------------
-    {
-      key = "V",
-      mods = "CTRL|SHIFT",
-      action = act.Multiple({
-        act.ActivateCopyMode,                -- コピー(vi風)モードへ
-        act.CopyMode({ SetSelectionMode = "Cell" }), -- すぐ選択状態に
-      }),
-    },
-    -- Mac でも同じ感覚にしたいなら Cmd+Shift+V も追加
-    {
-      key = "V",
-      mods = "CMD|SHIFT",
-      action = act.Multiple({
-        act.ActivateCopyMode,
-        act.CopyMode({ SetSelectionMode = "Cell" }),
-      }),
-    },
+		----------------------------------------------------------------
+		-- 2) Ctrl+Shift+V: CopyMode の「ビジュアル選択」へ直行
+		--   ※Windows/Linux 既定の「ペースト」とバッティングします。
+		--     ここで上書きしたくない場合はキーを変えてください（例: Alt+V）。
+		----------------------------------------------------------------
+		{
+			key = "V",
+			mods = "CTRL|SHIFT",
+			action = act.Multiple({
+				act.ActivateCopyMode, -- コピー(vi風)モードへ
+				act.CopyMode({ SetSelectionMode = "Cell" }), -- すぐ選択状態に
+			}),
+		},
+		-- Mac でも同じ感覚にしたいなら Cmd+Shift+V も追加
+		{
+			key = "V",
+			mods = "CMD|SHIFT",
+			action = act.Multiple({
+				act.ActivateCopyMode,
+				act.CopyMode({ SetSelectionMode = "Cell" }),
+			}),
+		},
 
-    ----------------------------------------------------------------
-    -- 3) Cmd(or Ctrl)+L: 画面クリア（スクロールバックも消す）→ Ctrl+L送出
-    --    - アプリ側にも通常の Ctrl+L を届けるので挙動が破綻しません。
-    ----------------------------------------------------------------
-    {
-      key = "L",
-      mods = primary_mod,
-      action = act.Multiple({
-        act.ClearScrollback("ScrollbackAndViewport"),
-        act.SendKey({ key = "L", mods = "CTRL" }),
-      }),
-    },
+		----------------------------------------------------------------
+		-- 3) Cmd(or Ctrl)+L: 画面クリア（スクロールバックも消す）→ Ctrl+L送出
+		--    - アプリ側にも通常の Ctrl+L を届けるので挙動が破綻しません。
+		----------------------------------------------------------------
+		{
+			key = "L",
+			mods = primary_mod,
+			action = act.Multiple({
+				act.ClearScrollback("ScrollbackAndViewport"),
+				act.SendKey({ key = "L", mods = "CTRL" }),
+			}),
+		},
 	},
 }
 
