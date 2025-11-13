@@ -125,6 +125,8 @@ local config = {
 			mods = "LEADER",
 			action = wezterm.action.CloseCurrentPane({ confirm = true }),
 		},
+		{ key = "v", mods = "CTRL", action = wezterm.action.PasteFrom("Clipboard") },
+		{ key = "v", mods = "CMD", action = wezterm.action.PasteFrom("Clipboard") },
 		{ key = "v", mods = "LEADER", action = wezterm.action.ActivateCopyMode },
 		-- Move pane
 		{ key = "h", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Left") },
