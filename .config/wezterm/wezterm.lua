@@ -13,7 +13,8 @@ end
 
 -- 必要ならホスト名のエイリアス変換
 local HOST_ALIAS = {
-	-- ["winter"] = "winter",  -- ~/.ssh/config の Host 名に合わせたい時に設定
+  ["containerlab"] = "clb",
+	 ["winter"] = "winter",  -- ~/.ssh/config の Host 名に合わせたい時に設定
 }
 
 local function open_in_vscode(window, pane)
@@ -23,7 +24,7 @@ local function open_in_vscode(window, pane)
 		return
 	end
 	local uri = tostring(cwd_uri)
-	-- wezterm.log_info("uri: " .. uri) -- デバッグ用
+	wezterm.log_info("uri: " .. uri) -- デバッグ用
 
 	-- 1) 標準的な SSH 形式: ssh://user@host/path
 	do
