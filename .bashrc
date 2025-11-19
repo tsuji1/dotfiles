@@ -149,3 +149,5 @@ source <(kubectl completion bash)
 eval "$(starship init bash)"
 export KUBE_EDITOR="$(command -v nvim)"
 export PATH=$PATH:"$HOME/.local/bin"
+
+PROMPT_COMMAND='printf "\033]7;file://%s%s\007" "${HOSTNAME}" "${PWD}"'
