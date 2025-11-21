@@ -25,10 +25,20 @@ return {
 					prompt = "選択したコードを読みやすくリファクタリングしてください。必要に応じて日本語コメントを追加してください。",
 					system_prompt = "可読性向上を最優先し、日本語コメントは簡潔に付けてください。",
 				},
-				EnglishToJapanese = {
-					prompt = "選択した英語文字列を日本語に翻訳してください。",
-					system_prompt = "選択した英語文字列を日本語に翻訳してください。",
-					mapping = "<Space>gT",
+				-- EnglishToJapanese = {
+				-- 	prompt = "選択した英語文字列を日本語に翻訳してください。",
+				-- 	system_prompt = "選択した英語文字列を日本語に翻訳してください。",
+				-- 	mapping = "kkk",
+				-- },
+			},
+			keys = {
+				{
+					"<leader>gT",
+					function()
+						local actions = require("CopilotChat.actions")
+						require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
+					end,
+					desc = "CopilotChat - Prompt actions",
 				},
 			},
 		},
