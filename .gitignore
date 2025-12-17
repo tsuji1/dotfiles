@@ -84,3 +84,5 @@ lazy-lock.json
 .config/systemd/user/timers.target.wants
 .config/Code/User
 .config/gopls/prompt
+.config/gcloud
+.config/ngrok

@@ -107,6 +107,14 @@ return {
 			if vim.fn.executable("bash-language-server") == 1 then
 				vim.lsp.config("bashls", {})
 			end
+
+			if vim.fn.executable("nil") == 1 then
+				vim.lsp.config("nixls", {
+					-- lspconfig が filetype や root dir を自動で設定してくれるので
+					-- 基本的に {} だけで OK です
+				})
+				vim.lsp.enable("nixls")
+			end
 			-- C / C++ 用 (clangd)
 			if vim.fn.executable("clangd") == 1 then
 				vim.lsp.config("clangd", {

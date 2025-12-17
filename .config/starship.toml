@@ -1,22 +1,6 @@
 # promptのカラーを設定しています、$変数は後述で設定している変数が差し込まれます
-format = """
-$directory\
-[](fg:#88C0D0 bg:#394260)\
-$git_branch\
-$git_status\
-[](fg:#394260)\
-$fill\
-[](fg:#212736)\
-$nodejs\
-$rust\
-$golang\
-$php\
-[](fg:#1d2230 bg:#212736)\
-$time\
-[](fg:#88C0D0 bg:#1d2230)\
-$os\
-[](fg:#88C0D0)\
-\n$character"""
+format = "$all"
+
 
 # コマンドラインに1行分のスペースを入れない
 add_newline = false
@@ -27,7 +11,6 @@ symbol = ' '
 
 [os]
 format = "[$symbol]($style)"
-style = "fg:#2E3440 bg:#88C0D0 bold"
 disabled = false
 
 [os.symbols]
@@ -36,7 +19,6 @@ Ubuntu = "  " # nf-linux-ubuntu
 Debian = "  " # nf-linux-debian
 
 [directory]
-style = "fg:#2E3440 bg:#88C0D0 bold"
 format = "[ $path ]($style)"
 truncation_length = 10
 truncate_to_repo = false
@@ -91,7 +73,7 @@ format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'
 
 [kubernetes]
 format = 'on [⛵ ($user on )($cluster in )$context \($namespace\)](dimmed green) '
-disabled = false
+disabled = true
 contexts = [
   { context_pattern = "dev.local.cluster.k8s", style = "green", symbol = "💔 " },
 ]
@@ -99,8 +81,7 @@ contexts = [
 
 [nix_shell]
 disabled = false         # 明示的に有効化
-symbol = "❄️fdsafdsa "
-format = "via [$symbol($name )($state )($impure)]($style)"
-pure_msg = "pure"
-impure_msg = "impure"
-heuristic = true
+symbol = "❄️"
+format = 'via $symbol$state( \($name\)) ($style) '
+style = "cyan bold"
+heuristic = false

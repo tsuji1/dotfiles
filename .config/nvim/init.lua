@@ -6,6 +6,9 @@ vim.opt.cursorline = true
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- これを書くと、Neovim内でのマウス操作で勝手にtmuxモードに入らなくなります
+vim.opt.mouse = "a"
+
 vim.opt.expandtab = true
 vim.opt.shiftround = true
 vim.opt.shiftwidth = 2
