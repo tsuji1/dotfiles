@@ -6,6 +6,7 @@ return {
 		},
 		build = "make tiktoken",
 		opts = {
+
 			-- === 基本設定 ===
 			model = "gpt-4o", -- 必要なら指定
 			temperature = 0.1,
@@ -39,6 +40,12 @@ return {
 						require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
 					end,
 					desc = "CopilotChat - Prompt actions",
+				},
+			},
+			mappings = {
+				reset = {
+					normal = "<M-l>",
+					insert = "<M-l>",
 				},
 			},
 		},
