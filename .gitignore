@@ -86,3 +86,4 @@ lazy-lock.json
 .config/gopls/prompt
 .config/gcloud
 .config/ngrok
+.config/spotatui

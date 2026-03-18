@@ -27,6 +27,26 @@ vim.opt.whichwrap = "b,s,h,l,<,>,[,],~"
 -- 	vim.opt.clipboard:append("unnamedplus,unnamed")
 -- end
 
+-- backup
+do
+	local backup_dir = vim.fn.expand("~/.vim/backup")
+	vim.fn.mkdir(backup_dir, "p")
+
+	vim.opt.backup = true
+	vim.opt.writebackup = true
+	-- // を付けると「ファイル名をフルパス風にして保存」できて衝突しにくい
+	vim.opt.backupdir = backup_dir .. "//"
+end
+
+-- undo (persistent)
+do
+	local undo_dir = vim.fn.expand("~/.local/state/nvim/undo")
+	vim.fn.mkdir(undo_dir, "p")
+
+	vim.opt.undofile = true
+	vim.opt.undodir = undo_dir .. "//"
+end
+
 -- InitLua
 require("user_command")
 require("config.lazy")

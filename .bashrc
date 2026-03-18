@@ -154,3 +154,4 @@ PROMPT_COMMAND='printf "\033]7;file://%s%s\007" "${HOSTNAME}" "${PWD}"'
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PATH=$PATH:"/home/yuzugon/istio-1.28.0/bin"
+eval "$(zoxide init bash)"
