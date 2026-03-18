@@ -242,10 +242,15 @@ else
 	config.default_prog = { "/bin/bash", "-l" }
 end
 
-config.font_size = 12.0
+config.font_size = 16
 config.use_ime = true
 config.window_background_opacity = 0.85
-config.font = wezterm.font("JetBrains Mono")
+config.font = wezterm.font_with_fallback({
+  "PleckJP",
+  "JetBrains Mono", -- PleckJPに無いアイコン等を補う
+  "Noto Color Emoji",
+  "Segoe UI Emoji",
+})
 config.macos_window_background_blur = 20
 config.scrollback_lines = 10000
 enable_scrollbar = true
