@@ -155,3 +155,4 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PATH=$PATH:"/home/yuzugon/istio-1.28.0/bin"
 eval "$(zoxide init bash)"
+set enable-bracketed-paste off
