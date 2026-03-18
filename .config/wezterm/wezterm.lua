@@ -13,8 +13,8 @@ end
 
 -- 必要ならホスト名のエイリアス変換
 local HOST_ALIAS = {
-  ["containerlab"] = "clb",
-	 ["winter"] = "winter",  -- ~/.ssh/config の Host 名に合わせたい時に設定
+	["containerlab"] = "clb",
+	["winter"] = "winter", -- ~/.ssh/config の Host 名に合わせたい時に設定
 }
 
 local function open_in_vscode(window, pane)
@@ -173,15 +173,6 @@ local config = {
 			}),
 		},
 		-- （Macで Cmd+Shift+Space でも同じ動作にしたい場合）
-		{
-			key = "Space",
-			mods = "CMD|SHIFT",
-			action = act.QuickSelectArgs({
-				label = "Pick & Copy",
-				patterns = nil,
-				action = act.CopyTo("Clipboard"),
-			}),
-		},
 
 		----------------------------------------------------------------
 		-- 2) Ctrl+Shift+V: CopyMode の「ビジュアル選択」へ直行
@@ -197,15 +188,6 @@ local config = {
 			}),
 		},
 		-- Mac でも同じ感覚にしたいなら Cmd+Shift+V も追加
-		{
-			key = "V",
-			mods = "CMD|SHIFT",
-			action = act.Multiple({
-				act.ActivateCopyMode,
-				act.CopyMode({ SetSelectionMode = "Cell" }),
-			}),
-		},
-
 		----------------------------------------------------------------
 		-- 3) Cmd(or Ctrl)+L: 画面クリア（スクロールバックも消す）→ Ctrl+L送出
 		--    - アプリ側にも通常の Ctrl+L を届けるので挙動が破綻しません。

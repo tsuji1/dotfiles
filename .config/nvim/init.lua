@@ -27,6 +27,26 @@ vim.opt.whichwrap = "b,s,h,l,<,>,[,],~"
 -- 	vim.opt.clipboard:append("unnamedplus,unnamed")
 -- end
 
+-- backup
+do
+	local backup_dir = vim.fn.expand("~/.vim/backup")
+	vim.fn.mkdir(backup_dir, "p")
+
+	vim.opt.backup = true
+	vim.opt.writebackup = true
+	-- // を付けると「ファイル名をフルパス風にして保存」できて衝突しにくい
+	vim.opt.backupdir = backup_dir .. "//"
+end
+
+-- undo (persistent)
+do
+	local undo_dir = vim.fn.expand("~/.local/state/nvim/undo")
+	vim.fn.mkdir(undo_dir, "p")
+
+	vim.opt.undofile = true
+	vim.opt.undodir = undo_dir .. "//"
+end
+
 -- InitLua
 require("user_command")
 require("config.lazy")
@@ -39,11 +59,14 @@ vim.keymap.set("n", "<leader>sv", "<cmd>vsplit<CR>", { desc = "縦分割" })
 vim.keymap.set("n", "<leader>sc", "<cmd>close<CR>", { desc = "ウィンドウ閉じる" })
 vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "サイズ均等" })
 
--- 移動
-vim.keymap.set("n", "<C-h>", "<C-w>h")
-vim.keymap.set("n", "<C-j>", "<C-w>j")
-vim.keymap.set("n", "<C-k>", "<C-w>k")
-vim.keymap.set("n", "<C-l>", "<C-w>l")
+-- 例: init.lua / keymaps.lua
+local opts = { silent = true }
+
+vim.keymap.set("t", "<C-h>", [[<C-\><C-n>:TmuxNavigateLeft<CR>]], opts)
+vim.keymap.set("t", "<C-j>", [[<C-\><C-n>:TmuxNavigateDown<CR>]], opts)
+vim.keymap.set("t", "<C-k>", [[<C-\><C-n>:TmuxNavigateUp<CR>]], opts)
+vim.keymap.set("t", "<C-l>", [[<C-\><C-n>:TmuxNavigateRight<CR>]], opts)
+vim.keymap.set("t", "<C-\\>", [[<C-\><C-n>:TmuxNavigatePrevious<CR>]], opts)
 
 -- リサイズ（矢印キー派）
 vim.keymap.set("n", "<C-Up>", "<cmd>resize +2<CR>")
