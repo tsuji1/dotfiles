@@ -135,6 +135,7 @@ alias dokcer="docker"
 alias nivm="nvim"
 alias nimv="nvim"
 alias n="nvim"
+alias wzi="wezterm imgcat"
 
 set -o vi
 

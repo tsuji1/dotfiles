@@ -87,3 +87,5 @@ lazy-lock.json
 .config/gcloud
 .config/ngrok
 .config/spotatui
+.config/cursor/auth.json
+.config/cursor/prompt_history.json

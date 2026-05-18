@@ -94,25 +94,26 @@ local act = wezterm.action
 
 local primary_mod = is_mac and "CMD" or "CTRL"
 
-quick_select_patterns = {
+local quick_select_patterns = {
 	-- URL / ドメイン
 	"[A-Za-z]+://[^\\s]+",
-	"[%w%.%-_]+%.[A-Za-z]{2,}",
+	"[A-Za-z0-9._-]+\\.[A-Za-z]{2,}",
 	-- IPv4 / CIDR / IPv6
-	"%d+%.%d+%.%d+%.%d+/%d+",
-	"%d+%.%d+%.%d+%.%d+",
-	"[%x:]+:%x+[%x:]*",
+	"\\d+\\.\\d+\\.\\d+\\.\\d+/\\d+",
+	"\\d+\\.\\d+\\.\\d+\\.\\d+",
+	"[0-9A-Fa-f:]+:[0-9A-Fa-f]+[0-9A-Fa-f:]*",
 	-- MAC アドレス
-	"%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",
+	"[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}",
 	-- AS番号 / チケット番号っぽいもの
-	"AS%d+",
-	"[A-Z]+-%d+",
+	"AS\\d+",
+	"[A-Z]+-\\d+",
 }
 
 local config = {
 
 	-- KeyBindings
 	--
+	quick_select_patterns = quick_select_patterns,
 
 	leader = { key = "a", mods = MOD, timeout_milliseconds = 2000 },
 
@@ -168,11 +169,20 @@ local config = {
 			mods = "CTRL|SHIFT",
 			action = act.QuickSelectArgs({
 				label = "Pick & Copy",
-				patterns = nil, -- ↑quick_select_patterns を使う
+				patterns = quick_select_patterns,
 				action = act.CopyTo("Clipboard"),
 			}),
 		},
-		-- （Macで Cmd+Shift+Space でも同じ動作にしたい場合）
+		-- macOS で Ctrl+Shift+Space がシステムに取られる場合の退避先
+		{
+			key = "Space",
+			mods = "CMD|SHIFT",
+			action = act.QuickSelectArgs({
+				label = "Pick & Copy",
+				patterns = quick_select_patterns,
+				action = act.CopyTo("Clipboard"),
+			}),
+		},
 
 		----------------------------------------------------------------
 		-- 2) Ctrl+Shift+V: CopyMode の「ビジュアル選択」へ直行
@@ -247,26 +257,44 @@ config.window_frame = {
 config.window_background_gradient = {
 	colors = { "#000000" },
 }
+config.tab_max_width = 32
+
 local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
 local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
+
+local function tab_title(tab)
+	local title = tab.tab_title
+	if title and #title > 0 then
+		return title
+	end
+	return tab.active_pane.title
+end
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
 	local background = "#5c6d74"
 	local foreground = "#FFFFFF"
 	local edge_background = "none"
+
 	if tab.is_active then
 		background = "#ae8b2d"
 		foreground = "#FFFFFF"
+	elseif hover then
+		background = "#6f8188"
 	end
+
 	local edge_foreground = background
-	local title = "   " .. wezterm.truncate_right(tab.active_pane.title, max_width - 1) .. "   "
+	local raw_title = tab_title(tab)
+	local title = " " .. wezterm.truncate_right(raw_title, math.max(1, max_width - 4)) .. " "
+
 	return {
 		{ Background = { Color = edge_background } },
 		{ Foreground = { Color = edge_foreground } },
 		{ Text = SOLID_LEFT_ARROW },
+
 		{ Background = { Color = background } },
 		{ Foreground = { Color = foreground } },
 		{ Text = title },
+
 		{ Background = { Color = edge_background } },
 		{ Foreground = { Color = edge_foreground } },
 		{ Text = SOLID_RIGHT_ARROW },
