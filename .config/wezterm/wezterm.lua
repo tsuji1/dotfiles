@@ -15,6 +15,7 @@ end
 local HOST_ALIAS = {
 	["containerlab"] = "clb",
 	["winter"] = "winter", -- ~/.ssh/config の Host 名に合わせたい時に設定
+	["banana"] = "banana", -- ~/.ssh/config の Host 名に合わせたい時に設定
 }
 
 local function open_in_vscode(window, pane)
@@ -34,9 +35,12 @@ local function open_in_vscode(window, pane)
 			host = HOST_ALIAS[host] or host
 			rpath = url_decode(rpath)
 			if is_windows() then
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
 				wezterm.run_child_process({ "cmd.exe", "/c", "code", "--remote", "ssh-remote+" .. host, rpath })
 			else
-				wezterm.run_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
+				wezterm.log_info("not windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
+				wezterm.background_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
 			end
 			return
 		end
@@ -50,9 +54,13 @@ local function open_in_vscode(window, pane)
 			host = HOST_ALIAS[host] or host
 			rpath = url_decode(rpath)
 			if is_windows() then
+				wezterm.log_info("windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
 				wezterm.run_child_process({ "cmd.exe", "/c", "code", "--remote", "ssh-remote+" .. host, rpath })
 			else
-				wezterm.run_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
+				wezterm.log_info("not windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
+				wezterm.background_child_process({ "/usr/local/bin/code", "--remote", "ssh-remote+" .. host, rpath })
 			end
 			return
 		end
@@ -238,10 +246,10 @@ config.font_size = 16
 config.use_ime = true
 config.window_background_opacity = 0.85
 config.font = wezterm.font_with_fallback({
-  "PleckJP",
-  "JetBrains Mono", -- PleckJPに無いアイコン等を補う
-  "Noto Color Emoji",
-  "Segoe UI Emoji",
+	"PleckJP",
+	"JetBrains Mono", -- PleckJPに無いアイコン等を補う
+	"Noto Color Emoji",
+	"Segoe UI Emoji",
 })
 config.macos_window_background_blur = 20
 config.scrollback_lines = 10000
