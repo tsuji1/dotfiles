@@ -27,11 +27,11 @@ if os.path.exists(LIBC):
     libc = ELF(LIBC)
 
 localscript = f"""
-b safe
+b main
 """
 
 gdbscript = r"""
-b safe
+b main
 continue
 """
 

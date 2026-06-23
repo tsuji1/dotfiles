@@ -87,3 +87,5 @@ lazy-lock.json
 .config/gcloud
 .config/ngrok
 .config/spotatui
+.config/chromium
+.config/cursor

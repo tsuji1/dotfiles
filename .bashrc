@@ -155,3 +155,8 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PATH=$PATH:"/home/yuzugon/istio-1.28.0/bin"
 eval "$(zoxide init bash)"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - bash)"
+
+eval "$(pyenv virtualenv-init -)"
