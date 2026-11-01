@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Linux 固有のインストール (install.sh から source される)
+
+install_os_packages() {
+    # mise で入らないもの (ビルドツールなど)
+    if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y build-essential curl git unzip tmux
+    fi
+}
+
+install_mise() {
+    command -v mise >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/mise" ]] && return
+    curl -fsSL https://mise.run | sh
+}

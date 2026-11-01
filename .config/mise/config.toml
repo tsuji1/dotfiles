@@ -1,0 +1,42 @@
+# mise でグローバルに入れる CLI ツール
+# `mise install` で一括インストール / `mise upgrade` で更新
+# "latest" はインストール時点の最新版。固定したい場合はバージョンを書く
+[tools]
+# editor
+neovim = "latest" # nightly にしたい場合は "nightly"
+
+# shell まわり
+starship = "latest"
+zoxide = "latest"
+fzf = "latest"
+
+# CLI ツール
+lazygit = "latest"
+ripgrep = "latest"
+fd = "latest"
+bottom = "latest"
+kubectl = "latest"
+
+# 言語・ランタイム
+go = "latest"
+node = "lts" # npm: の LSP 用
+uv = "latest" # pipx: の LSP 用 (uvx で入る)
+
+# ---- nvim: LSP ----
+"go:golang.org/x/tools/gopls" = "latest"
+lua-language-server = "latest"
+"pipx:python-lsp-server" = "latest"
+"npm:yaml-language-server" = "latest"
+"npm:vscode-langservers-extracted" = "latest" # jsonls
+"npm:bash-language-server" = "latest"
+shellcheck = "latest" # bashls が診断に使う
+
+# ---- nvim: formatter (conform.nvim) ----
+stylua = "latest"
+ruff = "latest"
+"go:mvdan.cc/gofumpt" = "latest"
+"go:golang.org/x/tools/cmd/goimports" = "latest"
+
+[settings]
+# .nvmrc や .python-version なども読む
+idiomatic_version_file_enable_tools = ["node", "python"]

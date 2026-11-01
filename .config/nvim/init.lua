@@ -47,16 +47,6 @@ do
 	vim.opt.undodir = undo_dir .. "//"
 end
 
--- mason.nvim を遅延ロードしても、mason で入れたツール(LSP/formatter)が
--- 起動直後から PATH で見つかるように先に追加しておく
-do
-	local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
-	local sep = vim.fn.has("win32") == 1 and ";" or ":"
-	if not (vim.env.PATH or ""):find(mason_bin, 1, true) then
-		vim.env.PATH = mason_bin .. sep .. (vim.env.PATH or "")
-	end
-end
-
 -- InitLua
 require("user_command")
 require("config.lazy")

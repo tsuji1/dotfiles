@@ -117,18 +117,13 @@ fi
 export GDBINIT=~/peda/peda.py
 
 export PATH="$HOME/.local/bin:$PATH"
-export PATH=$PATH:/usr/local/go/bin
+# go 本体は mise で管理。go install したバイナリ置き場だけ PATH に通す
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
 source ~/.git-completion.bash
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-. "$HOME/.cargo/env"
-
-. /usr/share/autojump/autojump.bash
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 export PATH=$PATH:/Applications/WezTerm.app/Contents/MacOS
 alias dokcer="docker"
@@ -146,6 +141,9 @@ bind 'set vi-ins-mode-string "\1\e[32m\2[I]\1\e[0m\2 "'
 bind 'set vi-cmd-mode-string "\1\e[31m\2[N]\1\e[0m\2 "'
 
 source <(kubectl completion bash)
+
+# mise で入れたツールを PATH に通す (starship / zoxide より前に)
+command -v mise >/dev/null 2>&1 && eval "$(mise activate bash)"
 
 eval "$(starship init bash)"
 export KUBE_EDITOR="$(command -v nvim)"

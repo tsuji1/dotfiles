@@ -62,7 +62,7 @@ return {
 
 			-- Go (gopls)
 			vim.lsp.config("gopls", {
-				cmd = { "gopls" }, -- Mason で入れていればそのまま
+				cmd = { "gopls" }, -- mise で入れる
 				settings = {
 					gopls = {
 						-- よく使う推奨設定
