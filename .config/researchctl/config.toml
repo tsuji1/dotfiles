@@ -1,0 +1,8 @@
+# researchctl の host ごとの設定（tools/researchctl/README.md）
+host = "aloheart"
+store = "~/research-runs"
+ledger = "~/research-runs-ledger"
+ledger_repo = "tsuji1/research-runs"
+issue_repo = "tsuji1/research-routing-table-cache"
+# cwd と argv に出てくる repo のほかに常に commit を記録する repo
+repos = []
