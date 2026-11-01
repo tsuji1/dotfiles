@@ -74,6 +74,20 @@ install_deps() {
     # ここから先は全 OS 共通: ~/.config/mise/config.toml のツールを一括インストール
     command echo "installing tools with mise..."
     mise install
+
+    setup_nvim
+}
+
+# nvim を headless で起動し、lazy-lock.json の版でプラグインを入れる (build も走る)
+setup_nvim() {
+    local log="${XDG_STATE_HOME:-$HOME/.local/state}/nvim-install.log"
+    mkdir -p "$(dirname "$log")"
+    command echo "installing nvim plugins... (log: $log)"
+    if ! mise exec -- nvim --headless "+Lazy! restore" +qa >"$log" 2>&1; then
+        command echo "nvim plugin install failed:" >&2
+        tail -n 20 "$log" >&2
+        return 1
+    fi
 }
 
 link_to_homedir
