@@ -79,7 +79,18 @@ install_deps() {
     command echo "[$os] installing agy..."
     install_agy
 
+    setup_tmux
     setup_nvim
+}
+
+# TPM が未取得の場合だけインストールする
+setup_tmux() {
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ ! -d "$tpm_dir" ]]; then
+        command echo "installing tmux plugin manager..."
+        mkdir -p "$(dirname "$tpm_dir")"
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+    fi
 }
 
 # nvim を headless で起動し、lazy-lock.json の版でプラグインを入れる (build も走る)
