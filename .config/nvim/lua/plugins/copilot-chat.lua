@@ -5,6 +5,44 @@ return {
 			{ "nvim-lua/plenary.nvim", branch = "master" },
 		},
 		build = "make tiktoken",
+		-- コマンドで初めて使うときに読み込む
+		cmd = {
+			"CopilotChat",
+			"CopilotChatOpen",
+			"CopilotChatClose",
+			"CopilotChatToggle",
+			"CopilotChatVsplitToggle",
+			"CopilotChatBuffer",
+			"CopilotChatInPlace",
+			"CopilotChatVisual",
+			"CopilotChatStop",
+			"CopilotChatReset",
+			"CopilotChatSave",
+			"CopilotChatLoad",
+			"CopilotChatPrompts",
+			"CopilotChatModels",
+			-- プロンプト由来のコマンド
+			"CopilotChatExplain",
+			"CopilotChatReview",
+			"CopilotChatFix",
+			"CopilotChatOptimize",
+			"CopilotChatDocs",
+			"CopilotChatTests",
+			"CopilotChatCommit",
+			"CopilotChatRefactor",
+		},
+		-- プロンプト選択（以前は opts 内にあって効いていなかったものを lazy の keys に移動。
+		-- 旧 telescope 連携は廃止されたので組み込みの select_prompt を使う）
+		keys = {
+			{
+				"<leader>gT",
+				function()
+					require("CopilotChat").select_prompt()
+				end,
+				mode = { "n", "v" },
+				desc = "CopilotChat - Prompt actions",
+			},
+		},
 		opts = {
 
 			-- === 基本設定 ===
@@ -31,16 +69,6 @@ return {
 				-- 	system_prompt = "選択した英語文字列を日本語に翻訳してください。",
 				-- 	mapping = "kkk",
 				-- },
-			},
-			keys = {
-				{
-					"<leader>gT",
-					function()
-						local actions = require("CopilotChat.actions")
-						require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
-					end,
-					desc = "CopilotChat - Prompt actions",
-				},
 			},
 			mappings = {
 				reset = {

@@ -90,6 +90,7 @@ return {
 	-- ステータスライン（テーマ揃える）
 	{
 		"nvim-lualine/lualine.nvim",
+		event = "VeryLazy",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		opts = {
 			options = {
@@ -105,6 +106,7 @@ return {
 	{
 		"akinsho/bufferline.nvim",
 		version = "*",
+		event = "VeryLazy",
 		dependencies = "nvim-tree/nvim-web-devicons",
 		opts = { options = { separator_style = "slant", diagnostics = "nvim_lsp" } },
 	},
@@ -113,6 +115,7 @@ return {
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
+		event = { "BufReadPost", "BufNewFile" },
 		opts = { indent = { char = "│" }, scope = { enabled = false } },
 	},
 

@@ -26,7 +26,13 @@ return {
 	},
 
 	-- ツールのインストール管理（任意だが便利）
-	{ "williamboman/mason.nvim", build = ":MasonUpdate", opts = {} },
+	-- mason/bin の PATH 追加は init.lua で先に行っているので、本体は遅延ロード
+	{
+		"williamboman/mason.nvim",
+		build = ":MasonUpdate",
+		cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonUpdate", "MasonLog" },
+		opts = {},
+	},
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		event = "VeryLazy",

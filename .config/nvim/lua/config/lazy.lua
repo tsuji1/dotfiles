@@ -36,4 +36,16 @@ require("lazy").setup({
 		enabled = true,
 		notify = false,
 	},
+	performance = {
+		rtp = {
+			-- 使っていない標準プラグインを読み込まない
+			disabled_plugins = {
+				"gzip",
+				"tarPlugin",
+				"tohtml",
+				"tutor",
+				"zipPlugin",
+			},
+		},
+	},
 })

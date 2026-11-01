@@ -15,6 +15,8 @@ return {
 	-- Copilot を nvim-cmp の補完ソースに統合
 	{
 		"zbirenbaum/copilot-cmp",
+		-- nvim-cmp の依存として読み込まれる（単体で起動時に読み込まない）
+		lazy = true,
 		dependencies = { "zbirenbaum/copilot.lua" },
 		config = function()
 			require("copilot_cmp").setup()
