@@ -30,3 +30,8 @@ install_mise() {
     command -v mise >/dev/null 2>&1 && return
     scoop install mise
 }
+
+install_agy() {
+    command -v agy >/dev/null 2>&1 && return
+    powershell.exe -NoProfile -Command "irm https://antigravity.google/cli/install.ps1 | iex"
+}

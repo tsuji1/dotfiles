@@ -20,6 +20,9 @@ kubectl = "latest"
 # AI CLI
 "npm:@anthropic-ai/claude-code" = "latest" # claude
 "npm:@openai/codex" = "latest"             # codex
+"npm:@github/copilot" = "latest"           # copilot (Node 22 以上が必要)
+"npm:opencode-ai" = "latest"               # opencode
+# agy (Antigravity CLI) は npm 等で配布されていないので .bin/os/*.sh の公式インストーラーで入れる
 
 # 言語・ランタイム
 go = "latest"

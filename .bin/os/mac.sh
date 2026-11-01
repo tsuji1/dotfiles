@@ -19,3 +19,8 @@ install_mise() {
     command -v mise >/dev/null 2>&1 && return
     brew install mise
 }
+
+install_agy() {
+    command -v agy >/dev/null 2>&1 && return
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+}

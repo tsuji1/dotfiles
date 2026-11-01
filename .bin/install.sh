@@ -75,6 +75,10 @@ install_deps() {
     command echo "installing tools with mise..."
     mise install
 
+    # mise で入らないもの (OS ごとの公式インストーラー)
+    command echo "[$os] installing agy..."
+    install_agy
+
     setup_nvim
 }
 

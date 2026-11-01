@@ -17,3 +17,8 @@ install_mise() {
     command -v mise >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/mise" ]] && return
     curl -fsSL https://mise.run | sh
 }
+
+install_agy() {
+    command -v agy >/dev/null 2>&1 && return
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+}
