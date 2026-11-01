@@ -89,3 +89,8 @@ lazy-lock.json
 .config/spotatui
 .config/cursor/auth.json
 .config/cursor/prompt_history.json
+.config/google-chrome
+.config/google-chrome-for-testing/Crash Reports
+.config/libreoffice/4
+.config/pulse
+.config/gh/hosts.yml

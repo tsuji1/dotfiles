@@ -155,3 +155,8 @@ export EDITOR="$VISUAL"
 export PATH=$PATH:"/home/yuzugon/istio-1.28.0/bin"
 eval "$(zoxide init bash)"
 set enable-bracketed-paste off
+export SUDO_EDITOR=nvim
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/yuzugon/.local/bin:$PATH"
