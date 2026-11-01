@@ -230,6 +230,7 @@ config.window_background_opacity = 0.85
 config.font = wezterm.font_with_fallback({
   "PleckJP",
   "JetBrains Mono", -- PleckJPに無いアイコン等を補う
+  "Symbols Nerd Font Mono",
   "Noto Color Emoji",
   "Segoe UI Emoji",
 })
