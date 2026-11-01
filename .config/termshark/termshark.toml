@@ -1,0 +1,5 @@
+[main]
+color-tsharks = ['/usr/bin/tshark']
+last-used-tshark = '/usr/bin/tshark'
+recent-files = ['/home/yuzugon/pcap/equinix-nyc.dirB.20190117-135900.UTC.anon.pcap']
+validated-tsharks = ['/usr/bin/tshark']
