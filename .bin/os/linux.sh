@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Linux 固有のインストール (install.sh から source される)
 
+link_os_files() {
+    : # ~/.config ごとリンクされるので追加作業なし (pwsh も ~/.config/powershell を読む)
+}
+
 install_os_packages() {
     # mise で入らないもの (ビルドツールなど)
     if command -v apt-get >/dev/null 2>&1; then

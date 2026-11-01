@@ -52,22 +52,19 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+case "$(uname -s)" in
+Linux) os=linux ;;
+Darwin) os=mac ;;
+MINGW* | MSYS* | CYGWIN*) os=windows ;;
+*)
+    command echo "unsupported OS: $(uname -s)" >&2
+    exit 1
+    ;;
+esac
+# OS ごとの link_os_files / install_os_packages / install_mise を読み込む
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/os/$os.sh"
+
 install_deps() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-    local os
-    case "$(uname -s)" in
-    Linux) os=linux ;;
-    Darwin) os=mac ;;
-    MINGW* | MSYS* | CYGWIN*) os=windows ;;
-    *)
-        command echo "unsupported OS: $(uname -s)" >&2
-        return 1
-        ;;
-    esac
-
-    # OS ごとの install_os_packages / install_mise を読み込む
-    source "$script_dir/os/$os.sh"
-
     command echo "[$os] installing OS packages..."
     install_os_packages
     command echo "[$os] installing mise..."
@@ -80,6 +77,7 @@ install_deps() {
 }
 
 link_to_homedir
+link_os_files
 if [[ $no_deps == false ]]; then
     install_deps
 fi
