@@ -17,6 +17,10 @@ fd = "latest"
 bottom = "latest"
 kubectl = "latest"
 
+# AI CLI
+"npm:@anthropic-ai/claude-code" = "latest" # claude
+"npm:@openai/codex" = "latest"             # codex
+
 # 言語・ランタイム
 go = "latest"
 node = "lts" # npm: の LSP 用
