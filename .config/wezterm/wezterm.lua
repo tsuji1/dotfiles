@@ -237,7 +237,7 @@ end)
 
 local is_windows = wezterm.target_triple:find("windows")
 if is_windows then
-	config.default_prog = { "pwsh.exe" }
+	config.default_prog = { "pwsh.exe", "-NoLogo" }
 else
 	config.default_prog = { "/bin/bash", "-l" }
 end
@@ -254,7 +254,13 @@ config.font = wezterm.font_with_fallback({
 })
 config.macos_window_background_blur = 20
 config.scrollback_lines = 10000
-enable_scrollbar = true
+
+-- パフォーマンス設定
+config.front_end = "WebGpu" -- 既定の OpenGL より高速（Windows では DX12/Vulkan を使う）
+config.webgpu_power_preference = "HighPerformance" -- dGPU がある場合はそちらを使う
+config.max_fps = 120 -- 既定 60
+config.animation_fps = 1 -- カーソル点滅などのアニメーションで再描画しない
+config.cursor_blink_rate = 0
 
 config.enable_kitty_graphics = true
 
@@ -263,9 +269,8 @@ config.window_frame = {
 	inactive_titlebar_bg = "none",
 	active_titlebar_bg = "none",
 }
-config.window_background_gradient = {
-	colors = { "#000000" },
-}
+-- 単色グラデーションは毎フレーム描画コストがかかるだけなので単色背景にする
+config.colors = { background = "#000000" }
 config.tab_max_width = 32
 
 local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
