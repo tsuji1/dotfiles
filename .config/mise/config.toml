@@ -29,6 +29,8 @@ lua-language-server = "latest"
 "npm:yaml-language-server" = "latest"
 "npm:vscode-langservers-extracted" = "latest" # jsonls
 "npm:bash-language-server" = "latest"
+"npm:typescript-language-server" = "latest" # ts_ls
+"npm:typescript" = "latest" # ts_ls が使う tsserver
 shellcheck = "latest" # bashls が診断に使う
 
 # ---- nvim: formatter (conform.nvim) ----

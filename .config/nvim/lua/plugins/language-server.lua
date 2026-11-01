@@ -126,6 +126,10 @@ return {
 			vim.lsp.config("jsonls", {})
 			enable_on_ft("jsonls", { "json", "jsonc" })
 
+			-- JavaScript / TypeScript (typescript-language-server)
+			vim.lsp.config("ts_ls", {})
+			enable_on_ft("ts_ls", { "javascript", "javascriptreact", "typescript", "typescriptreact" })
+
 			-- Bash
 			vim.lsp.config("bashls", {})
 			enable_on_ft("bashls", { "sh", "bash" })
