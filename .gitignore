@@ -109,3 +109,5 @@ lazy-lock.json
 /.config/agent-of-empires/profiles/main
 /.config/agent-of-empires/state.toml
 /.config/agent-of-empires/update_cache.json
+!/skills/
+!/skills/**

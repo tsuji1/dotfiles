@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marp Japanese PPTX"
+  short_description: "Create editable Japanese Marp slide decks"
+  default_prompt: "Use $marp-japanese-pptx to create an editable Japanese PPTX from a Marp Markdown deck."

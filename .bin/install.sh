@@ -34,6 +34,50 @@ link_to_homedir() {
     fi
 }
 
+# dotfiles/skills/<name> を Claude Code と Codex のユーザー Skills にリンクする。
+# ~/.claude や ~/.agents は認証情報などを含むため丸ごとリンクせず、Skill ごとにリンクする。
+link_agent_skills() {
+    local dotdir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
+    local src="$dotdir/skills"
+    [[ -d "$src" ]] || return 0
+    local backup="$HOME/.dotbackup/skills/$(date +%Y%m%d%H%M%S)"
+    local targets=("$HOME/.claude/skills" "$HOME/.agents/skills")
+
+    command echo "linking agent skills..."
+    for skill in "$src"/*/; do
+        skill="${skill%/}"
+        [[ -f "$skill/SKILL.md" ]] || continue
+        local name="$(basename "$skill")"
+
+        for dir in "${targets[@]}"; do
+            mkdir -p "$dir"
+            local dest="$dir/$name"
+            if [[ -L "$dest" ]]; then
+                command rm -f "$dest"
+            elif [[ -e "$dest" ]]; then
+                mkdir -p "$backup/$(basename "$(dirname "$dir")")"
+                command mv "$dest" "$backup/$(basename "$(dirname "$dir")")/"
+            fi
+            command ln -sn "$skill" "$dest"
+        done
+
+        # 旧来の Codex の置き場所 (~/.codex/skills) に同名の実体があれば二重読み込みを避けるため退避
+        local legacy="$HOME/.codex/skills/$name"
+        if [[ -e "$legacy" && ! -L "$legacy" ]]; then
+            mkdir -p "$backup/.codex"
+            command mv "$legacy" "$backup/.codex/"
+        fi
+    done
+
+    # リンク先が消えた Skill のリンクを掃除
+    for dir in "${targets[@]}"; do
+        for l in "$dir"/*; do
+            [[ -L "$l" && ! -e "$l" && "$(readlink "$l")" == "$src/"* ]] && command rm -f "$l"
+        done
+    done
+    return 0
+}
+
 no_deps=false
 while [ $# -gt 0 ]; do
     case ${1} in
@@ -107,6 +151,7 @@ setup_nvim() {
 
 link_to_homedir
 link_os_files
+link_agent_skills
 if [[ $no_deps == false ]]; then
     install_deps
 fi

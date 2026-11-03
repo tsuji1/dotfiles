@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Figures"
+  short_description: "研究のグラフの注意点"
+  default_prompt: "Use $research-figures to follow the guidelines in docs/guidelines/figures.md."

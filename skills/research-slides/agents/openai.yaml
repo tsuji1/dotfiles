@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Slides"
+  short_description: "研究スライド（pptx）の注意点"
+  default_prompt: "Use $research-slides to follow the guidelines in docs/guidelines/slides.md."
