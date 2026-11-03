@@ -18,7 +18,7 @@ bottom = "latest"
 kubectl = "latest"
 
 # AI CLI
-"npm:@anthropic-ai/claude-code" = "latest" # claude
+"npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = true } # claude
 "npm:@openai/codex" = "latest"             # codex
 "npm:@github/copilot" = "latest"           # copilot (Node 22 以上が必要)
 "npm:opencode-ai" = "latest"               # opencode
@@ -45,6 +45,7 @@ stylua = "latest"
 ruff = "latest"
 "go:mvdan.cc/gofumpt" = "latest"
 "go:golang.org/x/tools/cmd/goimports" = "latest"
+"github:agent-of-empires/agent-of-empires" = { version = "latest", rename_exe = "aoe" }
 
 [settings]
 # .nvmrc や .python-version なども読む
