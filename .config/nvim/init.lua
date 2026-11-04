@@ -86,6 +86,9 @@ vim.o.updatetime = 250
 vim.keymap.set("n", "<A-h>", "gT", { desc = "前のタブ" })
 vim.keymap.set("n", "<A-l>", "gt", { desc = "次のタブ" })
 
+vim.keymap.set("n", "H", "<cmd>BufferLineCyclePrev<CR>", { silent = true, desc = "Previous buffer" })
+vim.keymap.set("n", "L", "<cmd>BufferLineCycleNext<CR>", { silent = true, desc = "Next buffer" })
+
 -- カーソルを止めたら、その場所の警告理由をポップアップ
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 	callback = function()
