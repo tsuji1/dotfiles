@@ -8,7 +8,6 @@ return {
 		opts = {
 
 			-- === 基本設定 ===
-			model = "gpt-4o", -- 必要なら指定
 			temperature = 0.1,
 			auto_insert_mode = true,
 			window = {
