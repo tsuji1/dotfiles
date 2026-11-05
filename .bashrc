@@ -160,3 +160,7 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init - bash)"
 
 eval "$(pyenv virtualenv-init -)"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/yuzugon/.local/bin:$PATH"

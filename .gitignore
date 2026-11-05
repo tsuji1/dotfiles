@@ -89,3 +89,17 @@ lazy-lock.json
 .config/spotatui
 .config/chromium
 .config/cursor
+.config/shodan/api_key
+.config/nextjs-nodejs
+
+# Local credentials and generated service links
+/.config/tunnel-client/
+/.config/systemd/user/*.target.wants/
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+id_rsa
+id_ed25519

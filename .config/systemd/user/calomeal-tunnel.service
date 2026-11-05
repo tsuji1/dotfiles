@@ -1,0 +1,15 @@
+[Unit]
+Description=calomeal Secure MCP Tunnel
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/yuzugon/calomeal
+ExecStart=/bin/bash -c "set -a; . /home/yuzugon/calomeal/.env; exec /usr/local/bin/tunnel-client run --profile-dir /home/yuzugon/.config/tunnel-client --profile calomeal"
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=FreshRSS article summaries with Antigravity and Copilot CLI
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/freshrss/freshrss/extensions/xExtension-CLISummary/bridge/workspace
+EnvironmentFile=/opt/freshrss/freshrss/data/cli-summary.env
+ExecStart=/usr/bin/node /opt/freshrss/freshrss/extensions/xExtension-CLISummary/bridge/server.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+KillMode=control-group
+
+[Install]
+WantedBy=default.target
