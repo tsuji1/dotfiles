@@ -4,7 +4,8 @@ set -ue
 # from https://qiita.com/yutkat/items/c6c7584d9795799ee164
 
 helpmsg() {
-    command echo "Usage: $0 [--help | -h]" 0>&2
+    command echo "Usage: $0 [--help | -h] [--debug | -d] [--no-deps]" 0>&2
+    command echo "  --no-deps  シンボリックリンクだけ張り、依存ツールは入れない" 0>&2
     command echo ""
 }
 
@@ -33,8 +34,56 @@ link_to_homedir() {
     fi
 }
 
+# dotfiles/skills/<name> を Claude Code と Codex のユーザー Skills にリンクする。
+# ~/.claude や ~/.agents は認証情報などを含むため丸ごとリンクせず、Skill ごとにリンクする。
+link_agent_skills() {
+    local dotdir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
+    local src="$dotdir/skills"
+    [[ -d "$src" ]] || return 0
+    local backup="$HOME/.dotbackup/skills/$(date +%Y%m%d%H%M%S)"
+    local targets=("$HOME/.claude/skills" "$HOME/.agents/skills")
+
+    command echo "linking agent skills..."
+    for skill in "$src"/*/; do
+        skill="${skill%/}"
+        [[ -f "$skill/SKILL.md" ]] || continue
+        local name="$(basename "$skill")"
+
+        for dir in "${targets[@]}"; do
+            mkdir -p "$dir"
+            local dest="$dir/$name"
+            if [[ -L "$dest" ]]; then
+                command rm -f "$dest"
+            elif [[ -e "$dest" ]]; then
+                mkdir -p "$backup/$(basename "$(dirname "$dir")")"
+                command mv "$dest" "$backup/$(basename "$(dirname "$dir")")/"
+            fi
+            command ln -sn "$skill" "$dest"
+        done
+
+        # 旧来の Codex の置き場所 (~/.codex/skills) に同名の実体があれば二重読み込みを避けるため退避
+        local legacy="$HOME/.codex/skills/$name"
+        if [[ -e "$legacy" && ! -L "$legacy" ]]; then
+            mkdir -p "$backup/.codex"
+            command mv "$legacy" "$backup/.codex/"
+        fi
+    done
+
+    # リンク先が消えた Skill のリンクを掃除
+    for dir in "${targets[@]}"; do
+        for l in "$dir"/*; do
+            [[ -L "$l" && ! -e "$l" && "$(readlink "$l")" == "$src/"* ]] && command rm -f "$l"
+        done
+    done
+    return 0
+}
+
+no_deps=false
 while [ $# -gt 0 ]; do
     case ${1} in
+    --no-deps)
+        no_deps=true
+        ;;
     --debug | -d)
         set -uex
         ;;
@@ -47,8 +96,64 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-# 依存はあとで入れてもらう
-# go install golang.org/x/tools/gopls@latest
+case "$(uname -s)" in
+Linux) os=linux ;;
+Darwin) os=mac ;;
+MINGW* | MSYS* | CYGWIN*) os=windows ;;
+*)
+    command echo "unsupported OS: $(uname -s)" >&2
+    exit 1
+    ;;
+esac
+# OS ごとの link_os_files / install_os_packages / install_mise を読み込む
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/os/$os.sh"
+
+install_deps() {
+    command echo "[$os] installing OS packages..."
+    install_os_packages
+    command echo "[$os] installing mise..."
+    install_mise
+    export PATH="$HOME/.local/bin:$PATH"
+
+    # ここから先は全 OS 共通: ~/.config/mise/config.toml のツールを一括インストール
+    command echo "installing tools with mise..."
+    mise install
+
+    # mise で入らないもの (OS ごとの公式インストーラー)
+    command echo "[$os] installing agy..."
+    install_agy
+
+    setup_tmux
+    setup_nvim
+}
+
+# TPM が未取得の場合だけインストールする
+setup_tmux() {
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ ! -d "$tpm_dir" ]]; then
+        command echo "installing tmux plugin manager..."
+        mkdir -p "$(dirname "$tpm_dir")"
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+    fi
+}
+
+# nvim を headless で起動し、lazy-lock.json の版でプラグインを入れる (build も走る)
+setup_nvim() {
+    local log="${XDG_STATE_HOME:-$HOME/.local/state}/nvim-install.log"
+    mkdir -p "$(dirname "$log")"
+    command echo "installing nvim plugins... (log: $log)"
+    if ! mise exec -- nvim --headless "+Lazy! restore" +qa >"$log" 2>&1; then
+        command echo "nvim plugin install failed:" >&2
+        tail -n 20 "$log" >&2
+        return 1
+    fi
+}
+
 link_to_homedir
+link_os_files
+link_agent_skills
+if [[ $no_deps == false ]]; then
+    install_deps
+fi
 # git config --global include.path "~/.gitconfig_shared"
 command echo -e "\e[1;36m Install completed!!!! \e[m"

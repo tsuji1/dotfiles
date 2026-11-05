@@ -1,0 +1,4 @@
+interface:
+  display_name: "Exec.sh Usage"
+  short_description: "Guide exec.sh usage and parameterized runs"
+  default_prompt: "Use this skill to explain, update, and run exec.sh with CLI flags, keeping only DATABASE_URL and DEBUG_MODE in environment variables when needed."

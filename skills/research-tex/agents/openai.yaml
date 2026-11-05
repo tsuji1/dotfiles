@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research TeX"
+  short_description: "研究の LaTeX 文書の注意点"
+  default_prompt: "Use $research-tex to follow the guidelines in docs/guidelines/tex.md."

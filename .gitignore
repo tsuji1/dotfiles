@@ -87,12 +87,36 @@ lazy-lock.json
 .config/gcloud
 .config/ngrok
 .config/spotatui
-.config/chromium
-.config/cursor
-.config/shodan/api_key
-.config/nextjs-nodejs
+.config/cursor/auth.json
+.config/cursor/prompt_history.json
+.config/google-chrome
+.config/google-chrome-for-testing/Crash Reports
+.config/libreoffice/4
+.config/pulse
+.config/gh/hosts.yml
+/.config/agent-of-empires/.config.lock
+/.config/agent-of-empires/.recovery.lock
+/.config/agent-of-empires/.schema_version
+/.config/agent-of-empires/.session-title-aeb73dc60f554f6e.lock
+/.config/agent-of-empires/.session-title-b1cbacd00f514203.lock
+/.config/agent-of-empires/.session-title-cc9418fe8b1543ff.lock
+/.config/agent-of-empires/.state.toml.lock
+/.config/agent-of-empires/.telemetry.lock
+/.config/agent-of-empires/.title-mutation.lock
+/.config/agent-of-empires/.v027-sandbox-transition.lock
+/.config/agent-of-empires/config.toml
+/.config/agent-of-empires/debug.log
+/.config/agent-of-empires/profiles/main
+/.config/agent-of-empires/state.toml
+/.config/agent-of-empires/update_cache.json
+!/skills/
+!/skills/**
 
-# Local credentials and generated service links
+# Local credentials, application state, and generated service links
+/.config/chromium/
+/.config/cursor/
+/.config/shodan/api_key
+/.config/nextjs-nodejs/
 /.config/tunnel-client/
 /.config/systemd/user/*.target.wants/
 .env

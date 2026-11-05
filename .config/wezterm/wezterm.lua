@@ -13,8 +13,9 @@ end
 
 -- 必要ならホスト名のエイリアス変換
 local HOST_ALIAS = {
-  ["containerlab"] = "clb",
-	 ["winter"] = "winter",  -- ~/.ssh/config の Host 名に合わせたい時に設定
+	["containerlab"] = "clb",
+	["winter"] = "winter", -- ~/.ssh/config の Host 名に合わせたい時に設定
+	["banana"] = "banana", -- ~/.ssh/config の Host 名に合わせたい時に設定
 }
 
 local function open_in_vscode(window, pane)
@@ -34,9 +35,12 @@ local function open_in_vscode(window, pane)
 			host = HOST_ALIAS[host] or host
 			rpath = url_decode(rpath)
 			if is_windows() then
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
 				wezterm.run_child_process({ "cmd.exe", "/c", "code", "--remote", "ssh-remote+" .. host, rpath })
 			else
-				wezterm.run_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
+				wezterm.log_info("not windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
+				wezterm.background_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
 			end
 			return
 		end
@@ -50,9 +54,13 @@ local function open_in_vscode(window, pane)
 			host = HOST_ALIAS[host] or host
 			rpath = url_decode(rpath)
 			if is_windows() then
+				wezterm.log_info("windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
 				wezterm.run_child_process({ "cmd.exe", "/c", "code", "--remote", "ssh-remote+" .. host, rpath })
 			else
-				wezterm.run_child_process({ "code", "--remote", "ssh-remote+" .. host, rpath })
+				wezterm.log_info("not windows") -- デバッグ用
+				wezterm.log_info("SSH host: " .. host .. ", path: " .. rpath) -- デバッグ用
+				wezterm.background_child_process({ "/usr/local/bin/code", "--remote", "ssh-remote+" .. host, rpath })
 			end
 			return
 		end
@@ -94,25 +102,26 @@ local act = wezterm.action
 
 local primary_mod = is_mac and "CMD" or "CTRL"
 
-quick_select_patterns = {
+local quick_select_patterns = {
 	-- URL / ドメイン
 	"[A-Za-z]+://[^\\s]+",
-	"[%w%.%-_]+%.[A-Za-z]{2,}",
+	"[A-Za-z0-9._-]+\\.[A-Za-z]{2,}",
 	-- IPv4 / CIDR / IPv6
-	"%d+%.%d+%.%d+%.%d+/%d+",
-	"%d+%.%d+%.%d+%.%d+",
-	"[%x:]+:%x+[%x:]*",
+	"\\d+\\.\\d+\\.\\d+\\.\\d+/\\d+",
+	"\\d+\\.\\d+\\.\\d+\\.\\d+",
+	"[0-9A-Fa-f:]+:[0-9A-Fa-f]+[0-9A-Fa-f:]*",
 	-- MAC アドレス
-	"%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",
+	"[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}",
 	-- AS番号 / チケット番号っぽいもの
-	"AS%d+",
-	"[A-Z]+-%d+",
+	"AS\\d+",
+	"[A-Z]+-\\d+",
 }
 
 local config = {
 
 	-- KeyBindings
 	--
+	quick_select_patterns = quick_select_patterns,
 
 	leader = { key = "a", mods = MOD, timeout_milliseconds = 2000 },
 
@@ -168,17 +177,17 @@ local config = {
 			mods = "CTRL|SHIFT",
 			action = act.QuickSelectArgs({
 				label = "Pick & Copy",
-				patterns = nil, -- ↑quick_select_patterns を使う
+				patterns = quick_select_patterns,
 				action = act.CopyTo("Clipboard"),
 			}),
 		},
-		-- （Macで Cmd+Shift+Space でも同じ動作にしたい場合）
+		-- macOS で Ctrl+Shift+Space がシステムに取られる場合の退避先
 		{
 			key = "Space",
 			mods = "CMD|SHIFT",
 			action = act.QuickSelectArgs({
 				label = "Pick & Copy",
-				patterns = nil,
+				patterns = quick_select_patterns,
 				action = act.CopyTo("Clipboard"),
 			}),
 		},
@@ -197,15 +206,6 @@ local config = {
 			}),
 		},
 		-- Mac でも同じ感覚にしたいなら Cmd+Shift+V も追加
-		{
-			key = "V",
-			mods = "CMD|SHIFT",
-			action = act.Multiple({
-				act.ActivateCopyMode,
-				act.CopyMode({ SetSelectionMode = "Cell" }),
-			}),
-		},
-
 		----------------------------------------------------------------
 		-- 3) Cmd(or Ctrl)+L: 画面クリア（スクロールバックも消す）→ Ctrl+L送出
 		--    - アプリ側にも通常の Ctrl+L を届けるので挙動が破綻しません。
@@ -237,18 +237,30 @@ end)
 
 local is_windows = wezterm.target_triple:find("windows")
 if is_windows then
-	config.default_prog = { "pwsh.exe" }
+	config.default_prog = { "pwsh.exe", "-NoLogo" }
 else
 	config.default_prog = { "/bin/bash", "-l" }
 end
 
-config.font_size = 12.0
+config.font_size = 16
 config.use_ime = true
 config.window_background_opacity = 0.85
-config.font = wezterm.font("JetBrains Mono")
+config.font = wezterm.font_with_fallback({
+  "PleckJP",
+  "JetBrains Mono", -- PleckJPに無いアイコン等を補う
+  "Symbols Nerd Font Mono",
+  "Noto Color Emoji",
+  "Segoe UI Emoji",
+})
 config.macos_window_background_blur = 20
 config.scrollback_lines = 10000
-enable_scrollbar = true
+
+-- パフォーマンス設定
+config.front_end = "WebGpu" -- 既定の OpenGL より高速（Windows では DX12/Vulkan を使う）
+config.webgpu_power_preference = "HighPerformance" -- dGPU がある場合はそちらを使う
+config.max_fps = 120 -- 既定 60
+config.animation_fps = 1 -- カーソル点滅などのアニメーションで再描画しない
+config.cursor_blink_rate = 0
 
 config.enable_kitty_graphics = true
 
@@ -257,29 +269,46 @@ config.window_frame = {
 	inactive_titlebar_bg = "none",
 	active_titlebar_bg = "none",
 }
-config.window_background_gradient = {
-	colors = { "#000000" },
-}
+-- 単色グラデーションは毎フレーム描画コストがかかるだけなので単色背景にする
+config.colors = { background = "#000000" }
+config.tab_max_width = 32
+
 local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
 local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
+
+local function tab_title(tab)
+	local title = tab.tab_title
+	if title and #title > 0 then
+		return title
+	end
+	return tab.active_pane.title
+end
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
 	local background = "#5c6d74"
 	local foreground = "#FFFFFF"
 	local edge_background = "none"
+
 	if tab.is_active then
 		background = "#ae8b2d"
 		foreground = "#FFFFFF"
+	elseif hover then
+		background = "#6f8188"
 	end
+
 	local edge_foreground = background
-	local title = "   " .. wezterm.truncate_right(tab.active_pane.title, max_width - 1) .. "   "
+	local raw_title = tab_title(tab)
+	local title = " " .. wezterm.truncate_right(raw_title, math.max(1, max_width - 4)) .. " "
+
 	return {
 		{ Background = { Color = edge_background } },
 		{ Foreground = { Color = edge_foreground } },
 		{ Text = SOLID_LEFT_ARROW },
+
 		{ Background = { Color = background } },
 		{ Foreground = { Color = foreground } },
 		{ Text = title },
+
 		{ Background = { Color = edge_background } },
 		{ Foreground = { Color = edge_foreground } },
 		{ Text = SOLID_RIGHT_ARROW },

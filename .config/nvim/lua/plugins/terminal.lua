@@ -1,6 +1,9 @@
 return {
 	"akinsho/toggleterm.nvim",
 	version = "*", -- 安定版 (任意でタグ指定もOK)
+	-- UI 表示後に読み込む（<C-\> の優先順位は従来どおり toggleterm が勝つ）
+	event = "VeryLazy",
+	cmd = { "ToggleTerm", "TermExec", "ToggleTermToggleAll" },
 	config = function()
 		require("toggleterm").setup({
 			size = 50,
