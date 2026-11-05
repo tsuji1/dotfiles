@@ -127,3 +127,5 @@ lazy-lock.json
 *.key
 id_rsa
 id_ed25519
+.config/openlogi/armed-session
+.config/openlogi/agent.lock

@@ -177,7 +177,6 @@ local config = {
 			mods = "CTRL|SHIFT",
 			action = act.QuickSelectArgs({
 				label = "Pick & Copy",
-				patterns = quick_select_patterns,
 				action = act.CopyTo("Clipboard"),
 			}),
 		},
