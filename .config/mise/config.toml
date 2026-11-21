@@ -6,7 +6,6 @@
 neovim = "latest" # nightly にしたい場合は "nightly"
 
 # shell まわり
-starship = "latest"
 zoxide = "latest"
 fzf = "latest"
 

@@ -222,6 +222,25 @@ local config = {
 
 config.automatically_reload_config = true
 
+-- Ctrl+クリックで URL を開く。
+-- codex などマウス入力を受け取る TUI の中でも効くよう mouse_reporting = true 版も登録する。
+config.mouse_bindings = {}
+for _, reporting in ipairs({ false, true }) do
+	table.insert(config.mouse_bindings, {
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "CTRL",
+		mouse_reporting = reporting,
+		action = act.OpenLinkAtMouseCursor,
+	})
+	-- Down をアプリに渡さない（渡すと TUI 側で選択などが始まる）
+	table.insert(config.mouse_bindings, {
+		event = { Down = { streak = 1, button = "Left" } },
+		mods = "CTRL",
+		mouse_reporting = reporting,
+		action = act.Nop,
+	})
+end
+
 local hosts = require("ssh_hosts")
 config.ssh_domains = hosts
 -- 新規タブでPowerShell 7を開く

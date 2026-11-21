@@ -99,7 +99,13 @@ done
 case "$(uname -s)" in
 Linux) os=linux ;;
 Darwin) os=mac ;;
-MINGW* | MSYS* | CYGWIN*) os=windows ;;
+MINGW* | MSYS* | CYGWIN*)
+    # Native Windows setup lives in PowerShell; keep this entry point compatible.
+    ps_args=()
+    [[ $no_deps == true ]] && ps_args+=(-NoDeps)
+    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File \
+        "$(cygpath -w "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/install.ps1")" "${ps_args[@]}"
+    ;;
 *)
     command echo "unsupported OS: $(uname -s)" >&2
     exit 1
