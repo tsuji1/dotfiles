@@ -1,5 +1,7 @@
 # dotfiles
 
+`~/.config` は、既存の設定を保持しながら不足しているファイルだけを配置します。`gh` の既定設定は初回だけローカルにコピーします。旧インストールが `~/.config` 全体や Windows の `gh` フォルダーをこのリポジトリにリンクしていた場合は、現在の認証情報や設定をローカルのフォルダーに引き継ぎます。
+
 Codex / Claude Code の設定も次のファイルで管理します。
 
 - `.codex/defaults.toml` のモデル設定 → `~/.codex/config.toml`
@@ -38,8 +40,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\.bin\install.ps1
 .\.bin\install.ps1 -WhatIf
 ```
 
-- 既存の設定は `~/.dotbackup/<日時>/` に退避します。
-- `.config` は項目ごとに接続します。フォルダーは管理者権限不要のジャンクション、ファイルはシンボリックリンクを使います。権限がない場合はハードリンク、別ドライブなどでそれも作れない場合はコピーに切り替えます。ハードリンク・コピーはGit更新で追従しない場合があるため、更新後は再実行してください。
+- 置き換えるホーム直下の設定やプロファイルは `~/.dotbackup/<日時>/` に退避します。
+- `.config` の通常のファイルはシンボリックリンクで接続します。権限がない場合はハードリンク、別ドライブなどでそれも作れない場合はコピーに切り替えます。
 - PowerShell 5.1 / 7 のプロファイルと、Windows版Neovimの設定先も用意します。
 - `skills/` は `~/.claude/skills` と `~/.agents/skills` に接続します。同名の旧 `~/.codex/skills` の実体は退避します。
 - 依存ツールはScoop、Git、WezTerm、PowerShell 7、mise設定内のツール、agy、Neovimプラグインを導入します。tmux/TPMはWindowsでは導入しません。Scoopを新規導入するときはCurrentUserの実行ポリシーをRemoteSignedに設定します。

@@ -10,25 +10,26 @@ helpmsg() {
 }
 
 link_to_homedir() {
+    local f name
     command echo "backup old dotfiles..."
     if [ ! -d "$HOME/.dotbackup" ]; then
         command echo "$HOME/.dotbackup not found. Auto Make it"
         command mkdir "$HOME/.dotbackup"
     fi
 
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-    local dotdir=$(dirname ${script_dir})
     if [[ "$HOME" != "$dotdir" ]]; then
-        for f in $dotdir/.??*; do
-            [[ $(basename $f) == ".git" ]] && continue
-            [[ $(basename $f) == ".codex" || $(basename $f) == ".claude" ]] && continue
-            if [[ -L "$HOME/$(basename $f)" ]]; then
-                command rm -f "$HOME/$(basename $f)"
+        for f in "$dotdir"/.??*; do
+            name="${f##*/}"
+            case "$name" in
+                .git | .config | .codex | .claude) continue ;;
+            esac
+            if [[ -L "$HOME/$name" ]]; then
+                command rm -f "$HOME/$name"
             fi
-            if [[ -e "$HOME/$(basename $f)" ]]; then
-                command mv "$HOME/$(basename $f)" "$HOME/.dotbackup"
+            if [[ -e "$HOME/$name" ]]; then
+                command mv "$HOME/$name" "$HOME/.dotbackup"
             fi
-            command ln -snf $f $HOME
+            command ln -snf "$f" "$HOME"
         done
     else
         command echo "same install src dest"
@@ -94,10 +95,89 @@ link_agent_settings() {
     done
 }
 
+config_files() {
+    if [[ -e "$dotdir/.git" ]] && command -v git >/dev/null 2>&1; then
+        command git -C "$dotdir" ls-files -z -- .config
+    else
+        # A source archive can be installed before Git is available.
+        cd "$dotdir" && command find .config ! -type d -print0
+    fi
+}
+
+ensure_config_directory() {
+    local dir="$1" root="$2"
+    [[ "$dir" == "$root" ]] && return 0
+    ensure_config_directory "${dir%/*}" "$root" || return 1
+    [[ -L "$dir" || ( -e "$dir" && ! -d "$dir" ) ]] && return 1
+    [[ -d "$dir" ]] || command mkdir -p "$dir" || exit 1
+}
+
+install_config_files() (
+    set -o pipefail
+    local root="$1" migrating="${2:-false}"
+    local path source target parent
+    config_files | while IFS= read -r -d '' path; do
+        case "$path" in
+            .config/gh/config.yml) ;;
+            .config/gh/* | */.DS_Store) continue ;;
+        esac
+        source="$dotdir/$path"
+        [[ -f "$source" || -L "$source" ]] || continue
+        target="$root/${path#.config/}"
+        parent="${target%/*}"
+        ensure_config_directory "$parent" "$root" || continue
+
+        if [[ "$path" == .config/gh/config.yml ]]; then
+            # gh can rewrite its configuration. Keep its defaults local, too.
+            [[ -e "$target" || -L "$target" ]] || command cp -pn "$source" "$parent/"
+        else
+            # A migrated file is a snapshot of the same source the old link used.
+            if [[ "$migrating" == true && ! -d "$target" ]]; then
+                command rm -f "$target"
+            fi
+            [[ -e "$target" || -L "$target" ]] || command ln -s "$source" "$parent/"
+        fi
+    done
+)
+
+migrate_config_link() (
+    local root="$1" staging
+    staging="$(command mktemp -d "$HOME/.config.dotfiles.XXXXXXXX")"
+    trap '
+        if [[ ( -e "$staging/previous" || -L "$staging/previous" ) && ! -e "$root" && ! -L "$root" ]]; then
+            command mv "$staging/previous" "$root"
+        fi
+        command rm -rf "$staging/.config"
+        command rmdir "$staging"
+    ' EXIT
+
+    # Stage a complete snapshot of the active settings, including ignored files.
+    command mkdir "$staging/.config"
+    command cp -pPR "$root/." "$staging/.config/"
+    install_config_files "$staging/.config" true
+
+    [[ -L "$root" && "$root" -ef "$dotdir/.config" ]] || return 1
+    command mv "$root" "$staging/previous"
+    [[ -L "$staging/previous" ]] || return 1
+    command mv "$staging/.config" "$HOME/"
+    command rm "$staging/previous"
+)
+
+link_config_files() {
+    local root="$HOME/.config"
+    [[ "$HOME" == "$dotdir" ]] && return 0
+    if [[ -L "$root" && "$root" -ef "$dotdir/.config" ]]; then
+        migrate_config_link "$root"
+    elif [[ ! "$root" -ef "$dotdir/.config" ]]; then
+        [[ ! -d "$root" && ( -e "$root" || -L "$root" ) ]] && return 0
+        command mkdir -p "$root"
+        install_config_files "$root"
+    fi
+}
+
 # dotfiles/skills/<name> を Claude Code と Codex のユーザー Skills にリンクする。
 # ~/.claude や ~/.agents は認証情報などを含むため丸ごとリンクせず、Skill ごとにリンクする。
 link_agent_skills() {
-    local dotdir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
     local src="$dotdir/skills"
     [[ -d "$src" ]] || return 0
     local backup="$HOME/.dotbackup/skills/$(date +%Y%m%d%H%M%S)"
@@ -171,8 +251,9 @@ MINGW* | MSYS* | CYGWIN*)
     exit 1
     ;;
 esac
-# OS ごとの link_os_files / install_os_packages / install_mise を読み込む
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/os/$os.sh"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+dotdir="${script_dir%/*}"
+source "$script_dir/os/$os.sh"
 
 install_deps() {
     command echo "[$os] installing OS packages..."
@@ -216,7 +297,7 @@ setup_nvim() {
 }
 
 link_to_homedir
-link_os_files
+link_config_files
 link_agent_settings
 link_agent_skills
 if [[ $no_deps == false ]]; then

@@ -67,9 +67,10 @@ function Resolve-DirectoryLinks([string]$Path) {
     throw "Too many linked directories in $Path"
 }
 
-function Link-Path([string]$Source, [string]$Destination) {
+function Link-Path([string]$Source, [string]$Destination, [switch]$KeepExisting) {
     $sourceItem = Get-Item -LiteralPath $Source -Force
     $existing = Get-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
+    if ($KeepExisting -and $existing) { return }
     if ((Resolve-DirectoryLinks $Source) -eq (Resolve-DirectoryLinks $Destination)) { return }
     if ($existing -and $existing.LinkType) {
         foreach ($target in $existing.Target) {
@@ -90,12 +91,101 @@ function Link-Path([string]$Source, [string]$Destination) {
             try {
                 New-Item -ItemType HardLink -Path $Destination -Target $Source -ErrorAction Stop | Out-Null
             } catch {
-                Copy-Item -LiteralPath $Source -Destination $Destination
-                Write-Warning "Copied $Destination; rerun the installer after updating dotfiles."
+                if ($KeepExisting) {
+                    [IO.File]::Copy($Source, $Destination)
+                    Write-Warning "Copied $Destination as a local file."
+                } else {
+                    Copy-Item -LiteralPath $Source -Destination $Destination
+                    Write-Warning "Copied $Destination; rerun the installer after updating dotfiles."
+                }
             }
         }
     }
     Write-Host "Linked: $Destination"
+}
+
+function Convert-ConfigLink([string]$Source, [string]$Destination, [switch]$RelinkCopied) {
+    $existing = Get-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
+    if (-not ($existing -and $existing.LinkType -in @('Junction', 'SymbolicLink'))) { return }
+    if ((Resolve-DirectoryLinks $Destination) -ne (Resolve-DirectoryLinks $Source)) { return }
+    if (-not $PSCmdlet.ShouldProcess($Destination, 'Move active settings to a local directory')) { return }
+
+    $staging = $Destination + '.dotfiles-' + [Guid]::NewGuid().ToString('N')
+    $previous = $staging + '-link'
+    try {
+        # Copy reparse points as links and keep the original directory available until the copy succeeds.
+        & robocopy.exe $Source $staging /E /SL /SJ /R:0 /W:0 /NFL /NDL /NJH /NJS /NP | Out-Host
+        if ($LASTEXITCODE -ge 8) { throw "Could not copy active settings from $Source" }
+        if ($RelinkCopied) { Add-ConfigDefaults $staging -RelinkCopied }
+        Rename-Item -LiteralPath $Destination -NewName (Split-Path -Leaf $previous)
+        try {
+            if ((Get-Item -LiteralPath $previous -Force).LinkType -notin @('Junction', 'SymbolicLink')) {
+                throw "Configuration changed during migration: $Destination"
+            }
+            Rename-Item -LiteralPath $staging -NewName (Split-Path -Leaf $Destination)
+        } catch {
+            Rename-Item -LiteralPath $previous -NewName (Split-Path -Leaf $Destination)
+            throw
+        }
+        [IO.Directory]::Delete($previous)
+    } finally {
+        if ([IO.Directory]::Exists($staging)) { [IO.Directory]::Delete($staging, $true) }
+    }
+}
+
+function Get-ConfigPaths {
+    if ((Test-Path -LiteralPath (Join-Path $DotDirectory '.git')) -and
+        (Get-Command git -ErrorAction SilentlyContinue)) {
+        Invoke-Checked 'git' @('-C', $DotDirectory, '-c', 'core.quotepath=false', 'ls-files', '--', '.config')
+    } else {
+        Get-ChildItem -LiteralPath (Join-Path $DotDirectory '.config') -Recurse -Force -File | ForEach-Object {
+            $_.FullName.Substring($DotDirectory.Length + 1).Replace('\', '/')
+        }
+    }
+}
+
+function Add-ConfigDefaults([string]$Root, [switch]$RelinkCopied) {
+    $rootItem = Get-Item -LiteralPath $Root -Force -ErrorAction SilentlyContinue
+    if ($rootItem -and -not $rootItem.PSIsContainer) { return }
+    foreach ($path in (Get-ConfigPaths)) {
+        $isGhTemplate = $path -eq '.config/gh/config.yml'
+        if ((Split-Path -Leaf $path) -eq '.DS_Store' -or ($path.StartsWith('.config/gh/') -and -not $isGhTemplate)) { continue }
+        $source = Join-Path $DotDirectory $path
+        $destination = Join-Path $Root $path.Substring('.config/'.Length)
+        if (-not (Get-Item -LiteralPath $source -Force -ErrorAction SilentlyContinue)) { continue }
+        $existing = Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue
+        if ($existing -and (-not $RelinkCopied -or $isGhTemplate -or $existing.PSIsContainer)) { continue }
+        $parent = Split-Path -Parent $destination
+        $cursor = $parent
+        while ($cursor -and $cursor -ne $Root) {
+            $item = Get-Item -LiteralPath $cursor -Force -ErrorAction SilentlyContinue
+            if ($item -and (-not $item.PSIsContainer -or $item.LinkType)) { break }
+            $cursor = Split-Path -Parent $cursor
+        }
+        if ($cursor -ne $Root) { continue }
+
+        if ($isGhTemplate) {
+            if ($PSCmdlet.ShouldProcess($destination, 'Copy local gh defaults')) {
+                New-Item -ItemType Directory -Path $parent -Force | Out-Null
+                [IO.File]::Copy($source, $destination)
+            }
+        } else {
+            if ($existing) { [IO.File]::Delete($destination) }
+            Link-Path $source $destination -KeepExisting
+        }
+    }
+}
+
+function Install-ConfigFiles {
+    if ($HomeDirectory -eq $DotDirectory) { return }
+    $root = Join-Path $HomeDirectory '.config'
+    $sourceRoot = Join-Path $DotDirectory '.config'
+    if ((Resolve-DirectoryLinks $root) -eq (Resolve-DirectoryLinks $sourceRoot)) {
+        Convert-ConfigLink $sourceRoot $root -RelinkCopied
+    } else {
+        Convert-ConfigLink (Join-Path $sourceRoot 'gh') (Join-Path $root 'gh')
+        Add-ConfigDefaults $root
+    }
 }
 
 function Write-ProfileLoader([string]$Path) {
@@ -173,17 +263,14 @@ function Install-Dependencies {
     } finally { $env:MISE_GLOBAL_CONFIG_FILE = $oldConfig }
 }
 
-# Match the shell installer's dotfiles, but merge .config by entry so other apps'
-# settings remain in place. Repository metadata is never installed into HOME.
+# Repository metadata is never installed into HOME.
 Get-ChildItem -LiteralPath $DotDirectory -Force | Where-Object {
     $_.Name.StartsWith('.') -and $_.Name -notin @('.git', '.gitignore', '.config', '.codex', '.claude', '.DS_Store')
 } | ForEach-Object { Link-Path $_.FullName (Join-Path $HomeDirectory $_.Name) }
-Get-ChildItem -LiteralPath (Join-Path $DotDirectory '.config') -Force | Where-Object {
-    $_.Name -ne '.DS_Store'
-} | ForEach-Object { Link-Path $_.FullName (Join-Path $HomeDirectory ('.config\' + $_.Name)) }
+Install-ConfigFiles
 
 $nvimConfig = if ($NativeHome -and $env:XDG_CONFIG_HOME) { Join-Path $env:XDG_CONFIG_HOME 'nvim' } else { Join-Path $LocalDirectory 'nvim' }
-Link-Path (Join-Path $DotDirectory '.config\nvim') $nvimConfig
+Link-Path (Join-Path $DotDirectory '.config\nvim') $nvimConfig -KeepExisting
 Write-ProfileLoader (Join-Path $DocumentsDirectory 'PowerShell\Microsoft.PowerShell_profile.ps1')
 Write-ProfileLoader (Join-Path $DocumentsDirectory 'WindowsPowerShell\Microsoft.PowerShell_profile.ps1')
 
