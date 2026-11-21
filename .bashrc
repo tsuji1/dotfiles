@@ -160,3 +160,11 @@ export SUDO_EDITOR=nvim
 
 # Added by Antigravity CLI installer
 export PATH="/home/yuzugon/.local/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/home/yuzugon/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
