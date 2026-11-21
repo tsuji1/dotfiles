@@ -176,7 +176,7 @@ function Install-Dependencies {
 # Match the shell installer's dotfiles, but merge .config by entry so other apps'
 # settings remain in place. Repository metadata is never installed into HOME.
 Get-ChildItem -LiteralPath $DotDirectory -Force | Where-Object {
-    $_.Name.StartsWith('.') -and $_.Name -notin @('.git', '.gitignore', '.config', '.DS_Store')
+    $_.Name.StartsWith('.') -and $_.Name -notin @('.git', '.gitignore', '.config', '.codex', '.claude', '.DS_Store')
 } | ForEach-Object { Link-Path $_.FullName (Join-Path $HomeDirectory $_.Name) }
 Get-ChildItem -LiteralPath (Join-Path $DotDirectory '.config') -Force | Where-Object {
     $_.Name -ne '.DS_Store'
@@ -186,6 +186,59 @@ $nvimConfig = if ($NativeHome -and $env:XDG_CONFIG_HOME) { Join-Path $env:XDG_CO
 Link-Path (Join-Path $DotDirectory '.config\nvim') $nvimConfig
 Write-ProfileLoader (Join-Path $DocumentsDirectory 'PowerShell\Microsoft.PowerShell_profile.ps1')
 Write-ProfileLoader (Join-Path $DocumentsDirectory 'WindowsPowerShell\Microsoft.PowerShell_profile.ps1')
+
+# Never replace agent home directories: they also contain credentials and sessions.
+$codexConfig = Join-Path $HomeDirectory '.codex\config.toml'
+$codexDefault = [IO.File]::ReadAllText((Join-Path $DotDirectory '.codex\defaults.toml')).Trim()
+if ($codexDefault -cnotmatch '^model = "[a-zA-Z0-9._-]+"$') {
+    throw 'Expected a single model assignment in .codex/defaults.toml.'
+}
+$codexItem = Get-Item -LiteralPath $codexConfig -Force -ErrorAction SilentlyContinue
+$codexLink = $codexItem -and $codexItem.LinkType
+$existing = if (Test-Path -LiteralPath $codexConfig -PathType Leaf) {
+    [IO.File]::ReadAllText($codexConfig)
+} else { '' }
+$newline = if ($existing.Contains("`r`n")) { "`r`n" } else { "`n" }
+$lines = [regex]::Split($existing, '\r?\n')
+$modelIndex = -1
+for ($index = 0; $index -lt $lines.Length; $index++) {
+    if ($lines[$index] -match '^\s*\[') { break }
+    if ($lines[$index] -cmatch '^\s*(model|"model"|''model'')\s*=') {
+        if ($lines[$index] -cnotmatch '^\s*(model|"model"|''model'')\s*=\s*("[a-zA-Z0-9._-]+"|''[a-zA-Z0-9._-]+'')(\s*#.*|\s*)$') {
+            throw 'Expected a single-line model ID in the local Codex config.'
+        }
+        $modelIndex = $index
+        break
+    }
+}
+if ($modelIndex -ge 0) {
+    $lines[$modelIndex] = $lines[$modelIndex] -creplace '^(\s*)(model|"model"|''model'')\s*=\s*("[a-zA-Z0-9._-]+"|''[a-zA-Z0-9._-]+'')', ('${1}' + $codexDefault)
+    $updated = $lines -join $newline
+} else {
+    $updated = $codexDefault + $newline + $existing
+}
+if (($updated -cne $existing -or $codexLink) -and
+    $PSCmdlet.ShouldProcess($codexConfig, 'Apply shared Codex model')) {
+    $directory = Split-Path -Parent $codexConfig
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $temporary = Join-Path $directory ([IO.Path]::GetRandomFileName())
+    try {
+        [IO.File]::WriteAllText($temporary, $updated)
+        if ($codexItem) {
+            Backup-Path $codexConfig
+            if ($codexLink -and $existing.Length) {
+                [IO.File]::WriteAllText((Join-Path $BackupDirectory '.codex\config.previous.toml'), $existing)
+            }
+        }
+        Move-Item -LiteralPath $temporary -Destination $codexConfig
+    } finally {
+        if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary }
+    }
+}
+
+foreach ($relative in @('.codex\keybindings.json', '.claude\settings.json')) {
+    Link-Path (Join-Path $DotDirectory $relative) (Join-Path $HomeDirectory $relative)
+}
 
 Get-ChildItem -LiteralPath (Join-Path $DotDirectory 'skills') -Directory | ForEach-Object {
     if (Test-Path -LiteralPath (Join-Path $_.FullName 'SKILL.md')) {

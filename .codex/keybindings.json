@@ -1,0 +1,10 @@
+[
+  {
+    "command": "globalDictationHold",
+    "key": "Ctrl+Shift+J"
+  },
+  {
+    "command": "realtimeVoice",
+    "key": "Ctrl+Shift+L"
+  }
+]

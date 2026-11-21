@@ -1,5 +1,27 @@
 # dotfiles
 
+Codex / Claude Code の設定も次のファイルで管理します。
+
+- `.codex/defaults.toml` のモデル設定 → `~/.codex/config.toml`
+- `.codex/keybindings.json` → `~/.codex/keybindings.json`
+- `.claude/settings.json` → `~/.claude/settings.json`
+
+インストーラーは設定ファイルだけを接続し、既存ファイルは退避します。
+認証情報・会話履歴・キャッシュ・プラグインなどは管理対象外です。
+これらのディレクトリは Git の許可リスト方式にしているため、追加で管理する設定は
+`.gitignore` と両 OS のインストーラーにも明示的に追加してください。
+
+### Codex の共通設定と PC 固有設定
+
+共通の既定モデルは `.codex/defaults.toml` の `gpt-6.2-sol` です。
+インストーラーは各 PC の `~/.codex/config.toml` にモデルだけを反映します。
+信頼済みプロジェクト、許可パス、Windows アプリや MCP のパスは各 PC の設定ファイルに残ります。
+新しい PC ではインストーラーを実行し、必要なプロジェクトをその PC の Codex で信頼してください。
+
+旧インストーラーが作った設定ファイルへのリンクは、既存設定を引き継いだ実ファイルに切り替わります。
+移行やモデル変更の前の設定は `~/.dotbackup/` に退避します。
+共通モデルを変更したら、各 PC でインストーラーを再実行してください。設定だけなら Windows は `-NoDeps`、Linux / macOS は `--no-deps` を使えます。
+
 ## Windows
 
 通常の（管理者ではない）PowerShellで、リポジトリのルートから実行します。

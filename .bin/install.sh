@@ -21,6 +21,7 @@ link_to_homedir() {
     if [[ "$HOME" != "$dotdir" ]]; then
         for f in $dotdir/.??*; do
             [[ $(basename $f) == ".git" ]] && continue
+            [[ $(basename $f) == ".codex" || $(basename $f) == ".claude" ]] && continue
             if [[ -L "$HOME/$(basename $f)" ]]; then
                 command rm -f "$HOME/$(basename $f)"
             fi
@@ -32,6 +33,65 @@ link_to_homedir() {
     else
         command echo "same install src dest"
     fi
+}
+
+link_agent_settings() {
+    local dotdir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
+    local backup="$HOME/.dotbackup/agent-settings/$(date +%Y%m%d%H%M%S)-$$"
+    local relative source dest
+    local config="$HOME/.codex/config.toml" model input temporary
+    model="$(cat "$dotdir/.codex/defaults.toml")"
+    if ! [[ "$model" =~ ^model\ =\ \"[a-zA-Z0-9._-]+\"$ ]]; then
+        echo 'Expected a single model assignment in .codex/defaults.toml.' >&2
+        return 1
+    fi
+    mkdir -p "$(dirname "$config")"
+    input=/dev/null
+    if [[ -f "$config" ]]; then input="$config"; fi
+    temporary="$(mktemp "$HOME/.codex/.config.XXXXXXXX")"
+    if ! awk -v model="$model" '
+        BEGIN { quote = sprintf("%c", 39); key = "(model|\"model\"|" quote "model" quote ")" }
+        !table && /^[[:space:]]*\[/ { table = 1 }
+        !table && $0 ~ ("^[[:space:]]*" key "[[:space:]]*=") {
+            assignment = key "[[:space:]]*=[[:space:]]*(\"[a-zA-Z0-9._-]+\"|" quote "[a-zA-Z0-9._-]+" quote ")"
+            if ($0 !~ ("^[[:space:]]*" assignment "([[:space:]]*#.*|[[:space:]]*)$")) exit 1
+            sub(assignment, model)
+            found = 1
+        }
+        { lines[NR] = $0 }
+        END {
+            if (!found) print model
+            for (i = 1; i <= NR; i++) print lines[i]
+        }
+    ' "$input" > "$temporary"; then
+        rm -f "$temporary"
+        echo 'Expected a single-line model ID in the local Codex config.' >&2
+        return 1
+    fi
+    if [[ -L "$config" ]] || ! cmp -s "$temporary" "$config"; then
+        if [[ -e "$config" || -L "$config" ]]; then
+            mkdir -p "$backup/.codex"
+            cp -p "$config" "$backup/.codex/config.toml" 2>/dev/null ||
+                cp -P "$config" "$backup/.codex/config.toml"
+        fi
+        mv -f "$temporary" "$config"
+    else
+        rm -f "$temporary"
+    fi
+    for relative in .codex/keybindings.json .claude/settings.json; do
+        source="$dotdir/$relative"
+        dest="$HOME/$relative"
+        [[ "$source" == "$dest" ]] && continue
+        if [[ -L "$dest" && "$(readlink "$dest")" == "$source" ]]; then
+            continue
+        fi
+        if [[ -e "$dest" || -L "$dest" ]]; then
+            mkdir -p "$backup/$(dirname "$relative")"
+            command mv "$dest" "$backup/$relative"
+        fi
+        mkdir -p "$(dirname "$dest")"
+        command ln -s "$source" "$dest"
+    done
 }
 
 # dotfiles/skills/<name> を Claude Code と Codex のユーザー Skills にリンクする。
@@ -157,6 +217,7 @@ setup_nvim() {
 
 link_to_homedir
 link_os_files
+link_agent_settings
 link_agent_skills
 if [[ $no_deps == false ]]; then
     install_deps

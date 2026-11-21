@@ -131,3 +131,12 @@ id_ed25519
 .config/openlogi/armed-session
 .config/openlogi/agent.lock
 /.config/gh/hosts.yml
+
+# Agent settings only; credentials, histories, caches and plugins stay local.
+!/.codex/
+/.codex/*
+!/.codex/defaults.toml
+!/.codex/keybindings.json
+!/.claude/
+/.claude/*
+!/.claude/settings.json

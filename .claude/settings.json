@@ -1,0 +1,9 @@
+{
+  "autoUpdatesChannel": "latest",
+  "theme": "dark",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "autoCompactWindow": 400000
+    }
+  }
+}
